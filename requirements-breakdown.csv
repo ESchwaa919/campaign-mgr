@@ -1,0 +1,336 @@
+requirement_id,phase,priority,swimlane,capability,description,dependencies
+REQ-001,Phase 1,P0,Govern,Architectural Principle: 1: Governance First,Claravine,
+REQ-002,Phase 1,P0,Govern,Architectural Principle: 1: Governance First,API-enforced,
+REQ-003,Phase 1,P0,Govern,Architectural Principle: 1: Governance First,Real-time,
+REQ-004,Phase 1,P0,Govern,Architectural Principle: 1: Governance First,Automated,
+REQ-005,Phase 1,P0,Govern,Architectural Principle: 2: Single Source of Truth,Salesforce,
+REQ-006,Phase 1,P0,Govern,Architectural Principle: 2: Single Source of Truth,Data,
+REQ-007,Phase 1,P0,Govern,Architectural Principle: 2: Single Source of Truth,Real-time,
+REQ-008,Phase 1,P0,Govern,Architectural Principle: 2: Single Source of Truth,Golden,
+REQ-009,Phase 1,P0,Govern,Architectural Principle: 2: Single Source of Truth,Change,
+REQ-010,Phase 1,P0,Govern,Architectural Principle: 3: Compliance by Design,ClaimID,
+REQ-011,Phase 1,P0,Govern,Architectural Principle: 3: Compliance by Design,Content-to-Claim,
+REQ-012,Phase 1,P0,Govern,Architectural Principle: 3: Compliance by Design,Automated,
+REQ-013,Phase 1,P0,Govern,Architectural Principle: 3: Compliance by Design,Journey-level,
+REQ-014,Phase 1,P0,Govern,Architectural Principle: 3: Compliance by Design,Expiry,
+REQ-015,Phase 1,P0,Govern,Architectural Principle: 3: Compliance by Design,Off-label,
+REQ-016,Phase 1,P0,Govern,Architectural Principle: 3: Compliance by Design,Consent,
+REQ-017,Phase 1,P0,Govern,Architectural Principle: 3: Compliance by Design,Adverse,
+REQ-018,Phase 1,P0,Execute,Architectural Principle: 4: Agency Enablement,Agency,
+REQ-019,Phase 1,P0,Execute,Architectural Principle: 4: Agency Enablement,Pre-configured,
+REQ-020,Phase 1,P0,Execute,Architectural Principle: 4: Agency Enablement,Content,
+REQ-021,Phase 1,P0,Execute,Architectural Principle: 4: Agency Enablement,API,
+REQ-022,Phase 1,P0,Execute,Architectural Principle: 4: Agency Enablement,Automated,
+REQ-023,Phase 1,P0,Execute,Architectural Principle: 4: Agency Enablement,Agency,
+REQ-024,Phase 1,P0,Measure & Learn,Architectural Principle: 5: Measurement Readiness,Standardized,
+REQ-025,Phase 1,P0,Measure & Learn,Architectural Principle: 5: Measurement Readiness,Event,
+REQ-026,Phase 1,P0,Measure & Learn,Architectural Principle: 5: Measurement Readiness,UTM,
+REQ-027,Phase 1,P0,Measure & Learn,Architectural Principle: 5: Measurement Readiness,Server-side,
+REQ-028,Phase 1,P0,Measure & Learn,Architectural Principle: 5: Measurement Readiness,Event,
+REQ-029,Phase 1,P0,Measure & Learn,Architectural Principle: 5: Measurement Readiness,Event,
+REQ-030,Phase 1,P0,Measure & Learn,Architectural Principle: 5: Measurement Readiness,Cross-device,
+REQ-031,Phase 1,P0,Govern,Architectural Principle: 6: Auditability,Version,
+REQ-032,Phase 1,P0,Govern,Architectural Principle: 6: Auditability,Immutable,
+REQ-033,Phase 1,P0,Govern,Architectural Principle: 6: Auditability,Approval,
+REQ-034,Phase 1,P0,Govern,Architectural Principle: 6: Auditability,Content,
+REQ-035,Phase 1,P0,Govern,Architectural Principle: 6: Auditability,Claim,
+REQ-036,Phase 1,P0,Govern,Architectural Principle: 6: Auditability,Regulatory,
+REQ-037,Phase 1,P0,Govern,Architectural Principle: 6: Auditability,Legal,
+REQ-038,Phase 1,P0,Govern,Architectural Principle: 6: Auditability,Audit,
+REQ-039,Phase 1,P0,Govern,Customer Master Data Management,Person Account Model,REQ-005
+REQ-040,Phase 1,P0,Govern,Customer Master Data Management,Hierarchical Relationships,REQ-039
+REQ-041,Phase 1,P0,Govern,Customer Master Data Management,Pharma-Specific Attributes,REQ-039
+REQ-042,Phase 1,P0,Govern,Customer Master Data Management,Data Quality Rules,REQ-005
+REQ-043,Phase 1,P0,Govern,Customer Master Data Management,Duplicate Detection,REQ-042
+REQ-044,Phase 1,P0,Govern,Identity Resolution and Cross-Channel Recognition,Deterministic Matching,REQ-006
+REQ-045,Phase 2,P1,Govern,Identity Resolution and Cross-Channel Recognition,Probabilistic Matching,REQ-044
+REQ-046,Phase 2,P1,Govern,Identity Resolution and Cross-Channel Recognition,Device Graph,REQ-006
+REQ-047,Phase 2,P1,Govern,Identity Resolution and Cross-Channel Recognition,Cross-Domain Tracking,REQ-006
+REQ-048,Phase 2,P1,Govern,Identity Resolution and Cross-Channel Recognition,Anonymous-to-Known Resolution,REQ-006
+REQ-049,Phase 3,P2,Govern,Identity Resolution and Cross-Channel Recognition,Household Clustering,REQ-045
+REQ-050,Phase 1,P0,Govern,Campaign Taxonomy and Metadata Governance,Naming Convention Standards,REQ-001
+REQ-051,Phase 1,P0,Govern,Campaign Taxonomy and Metadata Governance,Campaign Hierarchy,REQ-050
+REQ-052,Phase 1,P0,Govern,Campaign Taxonomy and Metadata Governance,UTM Parameter Standards,REQ-050
+REQ-053,Phase 1,P0,Govern,Campaign Taxonomy and Metadata Governance,Content Metadata Schema,REQ-050
+REQ-054,Phase 2,P1,Govern,Campaign Taxonomy and Metadata Governance,Creative Versioning,REQ-053
+REQ-055,Phase 2,P1,Govern,Campaign Taxonomy and Metadata Governance,Placement Taxonomy,REQ-050
+REQ-056,Phase 1,P0,Govern,Consent and Preference Management,Preference Center,REQ-005
+REQ-057,Phase 1,P0,Govern,Consent and Preference Management,Opt-In/Out Workflow,REQ-056
+REQ-058,Phase 1,P0,Govern,Consent and Preference Management,Channel-Specific Consent,REQ-056
+REQ-059,Phase 2,P1,Govern,Consent and Preference Management,Purpose-Based Consent,REQ-056
+REQ-060,Phase 1,P0,Govern,Consent and Preference Management,Consent Propagation Service,REQ-056
+REQ-061,Phase 1,P0,Govern,Consent and Preference Management,Consent Enforcement API,REQ-060
+REQ-062,Phase 2,P1,Govern,Consent and Preference Management,Consent Reporting Dashboard,REQ-056-061
+REQ-063,Phase 1,P0,Segment,Demographic and Firmographic Segmentation,Demographic Segmentation,"REQ-005, 039, 041"
+REQ-064,Phase 1,P0,Segment,Demographic and Firmographic Segmentation,HCP Segmentation,REQ-063
+REQ-065,Phase 1,P0,Segment,Demographic and Firmographic Segmentation,Institutional Segmentation,REQ-063
+REQ-066,Phase 2,P1,Segment,Demographic and Firmographic Segmentation,Payer/Pharmacy Segmentation,REQ-063
+REQ-067,Phase 1,P0,Segment,Demographic and Firmographic Segmentation,Geographic Segmentation,REQ-063
+REQ-068,Phase 1,P0,Segment,Demographic and Firmographic Segmentation,Segment Builder Interface,REQ-063-067
+REQ-069,Phase 1,P0,Segment,Behavioral and Engagement Segmentation,Web/Mobile Engagement Scoring,REQ-024-030
+REQ-070,Phase 1,P0,Segment,Behavioral and Engagement Segmentation,Email Engagement Segmentation,REQ-069
+REQ-071,Phase 2,P1,Segment,Behavioral and Engagement Segmentation,Event Participation Tracking,REQ-069
+REQ-072,Phase 2,P1,Segment,Behavioral and Engagement Segmentation,Sales Interaction History,REQ-069
+REQ-073,Phase 2,P1,Segment,Behavioral and Engagement Segmentation,Patient Program Engagement,REQ-069
+REQ-074,Phase 2,P1,Segment,Behavioral and Engagement Segmentation,Content Consumption Patterns,REQ-069
+REQ-075,Phase 2,P1,Segment,Behavioral and Engagement Segmentation,Multi-Channel Engagement Score,REQ-069-074
+REQ-076,Phase 3,P2,Segment,Behavioral and Engagement Segmentation,Engagement Velocity Metrics,REQ-075
+REQ-077,Phase 2,P1,Segment,Propensity Modeling and Predictive Segmentation,Propensity-to-Prescribe Models,REQ-063-076
+REQ-078,Phase 2,P1,Segment,Propensity Modeling and Predictive Segmentation,Patient Adherence Prediction,REQ-077
+REQ-079,Phase 3,P2,Segment,Propensity Modeling and Predictive Segmentation,Next-Best-Action Engine,REQ-077-078
+REQ-080,Phase 3,P2,Segment,Propensity Modeling and Predictive Segmentation,Churn Prediction Models,REQ-077
+REQ-081,Phase 3,P2,Segment,Propensity Modeling and Predictive Segmentation,Lifetime Value Modeling,REQ-077
+REQ-082,Phase 3,P2,Segment,Propensity Modeling and Predictive Segmentation,Lookalike Audience Generation,REQ-077
+REQ-083,Phase 2,P1,Segment,Propensity Modeling and Predictive Segmentation,Model Registry,REQ-077
+REQ-084,Phase 2,P1,Segment,Propensity Modeling and Predictive Segmentation,Model Monitoring/Retraining,REQ-083
+REQ-085,Phase 2,P1,Segment,Propensity Modeling and Predictive Segmentation,Model Explainability,REQ-083
+REQ-086,Phase 2,P1,Segment,Real-Time Segmentation and Dynamic Audiences,Real-Time Segment Evaluation,"REQ-006, 069-076"
+REQ-087,Phase 2,P1,Segment,Real-Time Segmentation and Dynamic Audiences,Event-Driven Rules,REQ-086
+REQ-088,Phase 2,P1,Segment,Real-Time Segmentation and Dynamic Audiences,Streaming Data Integration,REQ-086
+REQ-089,Phase 2,P1,Segment,Real-Time Segmentation and Dynamic Audiences,Dynamic Audience Sync,REQ-086
+REQ-090,Phase 2,P1,Segment,Real-Time Segmentation and Dynamic Audiences,Segment Membership History,REQ-086
+REQ-091,Phase 3,P2,Segment,Real-Time Segmentation and Dynamic Audiences,Overlap Analysis,REQ-086
+REQ-092,Phase 2,P1,Segment,Real-Time Segmentation and Dynamic Audiences,Segment Performance Analytics,REQ-086
+REQ-093,Phase 1,P0,Create,Content Planning and Brief Management,Campaign Brief Template,"REQ-010, 050-053"
+REQ-094,Phase 1,P0,Create,Content Planning and Brief Management,Content Request Workflow,REQ-093
+REQ-095,Phase 1,P0,Create,Content Planning and Brief Management,Brief Approval Process,REQ-093
+REQ-096,Phase 1,P0,Create,Content Planning and Brief Management,Claim Selection Interface,REQ-010
+REQ-097,Phase 2,P1,Create,Content Planning and Brief Management,Reference Material Attachment,REQ-093
+REQ-098,Phase 2,P1,Create,Content Planning and Brief Management,Brief Status Dashboard,REQ-093-097
+REQ-099,Phase 2,P1,Create,Content Creation and Collaboration,Creative Workspace,REQ-093
+REQ-100,Phase 2,P1,Create,Content Creation and Collaboration,Template Library,DAM deployment
+REQ-101,Phase 2,P1,Create,Content Creation and Collaboration,Component Library,REQ-100
+REQ-102,Phase 2,P1,Create,Content Creation and Collaboration,Real-Time Collaboration,REQ-099
+REQ-103,Phase 2,P1,Create,Content Creation and Collaboration,Inline Commenting,REQ-099
+REQ-104,Phase 1,P0,Create,Content Creation and Collaboration,Version Control,DAM deployment
+REQ-105,Phase 2,P1,Create,Content Creation and Collaboration,Asset Preview,REQ-099
+REQ-106,Phase 2,P1,Create,Content Creation and Collaboration,Citation Management,REQ-035
+REQ-107,Phase 1,P0,Create,Content-to-Claim Mapping and Substantiation,Content Registration,REQ-010
+REQ-108,Phase 3,P2,Create,Content-to-Claim Mapping and Substantiation,Automated Claim Detection,REQ-107
+REQ-109,Phase 1,P0,Create,Content-to-Claim Mapping and Substantiation,Evidence Linking,REQ-035
+REQ-110,Phase 2,P1,Create,Content-to-Claim Mapping and Substantiation,Fair Balance Validation,REQ-107
+REQ-111,Phase 2,P1,Create,Content-to-Claim Mapping and Substantiation,Indication Alignment,REQ-010
+REQ-112,Phase 2,P1,Create,Content-to-Claim Mapping and Substantiation,Reference List Generation,REQ-109
+REQ-113,Phase 2,P1,Create,Content-to-Claim Mapping and Substantiation,Claim Usage Tracking,REQ-107
+REQ-114,Phase 3,P2,Create,Content-to-Claim Mapping and Substantiation,Visual Claim Mapping,REQ-107-113
+REQ-115,Phase 1,P0,Create,MLR Review Workflow and Approval Management,Multi-Stage MLR Workflow,REQ-010-017
+REQ-116,Phase 1,P0,Create,MLR Review Workflow and Approval Management,Role-Based Access Control,REQ-115
+REQ-117,Phase 1,P0,Create,MLR Review Workflow and Approval Management,Review Task Management,REQ-115
+REQ-118,Phase 2,P1,Create,MLR Review Workflow and Approval Management,Structured Comment Taxonomy,REQ-115
+REQ-119,Phase 1,P0,Create,MLR Review Workflow and Approval Management,Change Request Workflow,REQ-115
+REQ-120,Phase 1,P0,Create,MLR Review Workflow and Approval Management,Approval Status Tracking,REQ-115
+REQ-121,Phase 2,P1,Create,MLR Review Workflow and Approval Management,Conditional Approval,REQ-115
+REQ-122,Phase 2,P1,Create,MLR Review Workflow and Approval Management,Escalation Rules,REQ-115
+REQ-123,Phase 2,P1,Create,MLR Review Workflow and Approval Management,Review Metrics Dashboard,REQ-115
+REQ-124,Phase 1,P0,Create,"Content Versioning, Distribution, and Expiry Management",Version Archiving,DAM deployment
+REQ-125,Phase 1,P0,Create,"Content Versioning, Distribution, and Expiry Management",Version Scheme,REQ-124
+REQ-126,Phase 1,P0,Create,"Content Versioning, Distribution, and Expiry Management",Approved Version Locking,REQ-124
+REQ-127,Phase 1,P0,Create,"Content Versioning, Distribution, and Expiry Management",Content Distribution,REQ-124
+REQ-128,Phase 1,P0,Create,"Content Versioning, Distribution, and Expiry Management",Expiry Date Enforcement,REQ-010
+REQ-129,Phase 1,P0,Create,"Content Versioning, Distribution, and Expiry Management",Expiry Warnings,REQ-128
+REQ-130,Phase 1,P0,Create,"Content Versioning, Distribution, and Expiry Management",Auto-Pause Mechanism,REQ-128
+REQ-131,Phase 2,P1,Create,"Content Versioning, Distribution, and Expiry Management",Usage Analytics,REQ-127
+REQ-132,Phase 1,P0,Create,"Content Versioning, Distribution, and Expiry Management",Content Audit Trail,REQ-124-131
+REQ-133,Phase 2,P1,Orchestrate,Journey Design and Configuration,Journey Canvas LWC,"REQ-005, 063-092"
+REQ-134,Phase 2,P1,Orchestrate,Journey Design and Configuration,Node Library,REQ-133
+REQ-135,Phase 2,P1,Orchestrate,Journey Design and Configuration,Journey Versioning,REQ-133
+REQ-136,Phase 2,P1,Orchestrate,Journey Design and Configuration,Template Library,REQ-133
+REQ-137,Phase 2,P1,Orchestrate,Journey Design and Configuration,Visual Flow Validation,REQ-133
+REQ-138,Phase 3,P2,Orchestrate,Journey Design and Configuration,Journey Simulation,REQ-133
+REQ-139,Phase 2,P1,Orchestrate,Journey Design and Configuration,Documentation Generator,REQ-133
+REQ-140,Phase 3,P2,Orchestrate,Journey Design and Configuration,Collaboration Features,REQ-133
+REQ-141,Phase 1,P0,Orchestrate,Multi-Channel Execution and Orchestration,Multi-Channel Routing,Journey platform
+REQ-142,Phase 1,P0,Orchestrate,Multi-Channel Execution and Orchestration,Channel Preference Honoring,REQ-056-062
+REQ-143,Phase 2,P1,Orchestrate,Multi-Channel Execution and Orchestration,Channel Fallback Logic,REQ-141
+REQ-144,Phase 2,P1,Orchestrate,Multi-Channel Execution and Orchestration,Send-Time Optimization,REQ-069-076
+REQ-145,Phase 1,P0,Orchestrate,Multi-Channel Execution and Orchestration,Frequency Capping,REQ-141
+REQ-146,Phase 2,P1,Orchestrate,Multi-Channel Execution and Orchestration,Message Prioritization,REQ-145
+REQ-147,Phase 2,P1,Orchestrate,Multi-Channel Execution and Orchestration,Real-Time Personalization,REQ-063-092
+REQ-148,Phase 1,P0,Orchestrate,Multi-Channel Execution and Orchestration,Delivery Status Tracking,REQ-024-030
+REQ-149,Phase 2,P1,Orchestrate,Enterprise Fatigue Management,Central Fatigue Registry,REQ-024-030
+REQ-150,Phase 2,P1,Orchestrate,Enterprise Fatigue Management,Real-Time Fatigue Scoring,REQ-149
+REQ-151,Phase 2,P1,Orchestrate,Enterprise Fatigue Management,Fatigue Threshold Config,REQ-149
+REQ-152,Phase 2,P1,Orchestrate,Enterprise Fatigue Management,Pre-Send Fatigue Check API,REQ-149-151
+REQ-153,Phase 2,P1,Orchestrate,Enterprise Fatigue Management,Journey Fatigue Gates,REQ-152
+REQ-154,Phase 3,P2,Orchestrate,Enterprise Fatigue Management,Fatigue Override Workflow,REQ-152
+REQ-155,Phase 3,P2,Orchestrate,Enterprise Fatigue Management,Fatigue Impact Analysis,REQ-149-154
+REQ-156,Phase 2,P1,Orchestrate,Enterprise Fatigue Management,Cross-System Integration,REQ-149
+REQ-157,Phase 2,P1,Orchestrate,Journey Testing and Experimentation,A/B/n Testing Framework,REQ-133-140
+REQ-158,Phase 3,P2,Orchestrate,Journey Testing and Experimentation,Multi-Armed Bandit,REQ-157
+REQ-159,Phase 2,P1,Orchestrate,Journey Testing and Experimentation,Holdout Group Management,REQ-157
+REQ-160,Phase 2,P1,Orchestrate,Journey Testing and Experimentation,Statistical Analysis Library,REQ-157
+REQ-161,Phase 2,P1,Orchestrate,Journey Testing and Experimentation,Experiment Registry,REQ-157
+REQ-162,Phase 3,P2,Orchestrate,Journey Testing and Experimentation,Automated Winner Selection,REQ-160
+REQ-163,Phase 3,P2,Orchestrate,Journey Testing and Experimentation,Multi-Touch Attribution,REQ-157
+REQ-164,Phase 3,P2,Orchestrate,Journey Testing and Experimentation,Bayesian Optimization,REQ-160
+REQ-165,Phase 3,P2,Orchestrate,Journey Testing and Experimentation,Personalization Testing,"REQ-157, 147"
+REQ-166,Phase 2,P1,Orchestrate,Journey Performance Analytics,Real-Time Analytics Dashboard,REQ-024-030
+REQ-167,Phase 2,P1,Orchestrate,Journey Performance Analytics,Node-Level Tracking,REQ-166
+REQ-168,Phase 2,P1,Orchestrate,Journey Performance Analytics,Cohort Analysis,REQ-166
+REQ-169,Phase 2,P1,Orchestrate,Journey Performance Analytics,Journey Health Monitoring,REQ-166
+REQ-170,Phase 3,P2,Orchestrate,Journey Performance Analytics,Automated Recommendations,REQ-166-169
+REQ-171,Phase 2,P1,Orchestrate,Journey Performance Analytics,Journey Attribution,REQ-166
+REQ-172,Phase 2,P1,Orchestrate,Journey Performance Analytics,Journey ROI Calculation,REQ-171
+REQ-173,Phase 3,P2,Orchestrate,Journey Performance Analytics,Comparative Benchmarking,REQ-166-172
+REQ-174,Phase 1,P0,Execute,Email Marketing Execution,Enterprise Email Platform,"REQ-005-009, 056-062, 141-148"
+REQ-175,Phase 1,P0,Execute,Email Marketing Execution,Dynamic Content Assembly,REQ-174
+REQ-176,Phase 1,P0,Execute,Email Marketing Execution,Responsive Email Templates,REQ-174
+REQ-177,Phase 2,P1,Execute,Email Marketing Execution,Send-Time Optimization,REQ-069-076
+REQ-178,Phase 1,P0,Execute,Email Marketing Execution,List Hygiene Automation,REQ-174
+REQ-179,Phase 2,P1,Execute,Email Marketing Execution,Spam Filter Testing,REQ-174
+REQ-180,Phase 1,P0,Execute,Email Marketing Execution,Unsubscribe Management,REQ-056-062
+REQ-181,Phase 1,P0,Execute,Email Marketing Execution,Engagement Tracking,REQ-024-030
+REQ-182,Phase 2,P1,Execute,Email Marketing Execution,Email A/B Testing,REQ-157
+REQ-183,Phase 2,P1,Execute,Mobile Messaging Channels,SMS Platform,"REQ-005, 056-062, 141-148"
+REQ-184,Phase 2,P1,Execute,Mobile Messaging Channels,Mobile Push Notifications,REQ-183
+REQ-185,Phase 3,P2,Execute,Mobile Messaging Channels,In-App Messaging,REQ-184
+REQ-186,Phase 3,P2,Execute,Mobile Messaging Channels,Rich Media Messaging,REQ-183-184
+REQ-187,Phase 2,P1,Execute,Mobile Messaging Channels,Carrier Compliance,REQ-183
+REQ-188,Phase 2,P1,Execute,Mobile Messaging Channels,Opt-In Verification,REQ-056-062
+REQ-189,Phase 2,P1,Execute,Mobile Messaging Channels,Keyword Management,REQ-183
+REQ-190,Phase 2,P1,Execute,Mobile Messaging Channels,Delivery Receipt Tracking,REQ-183
+REQ-191,Phase 2,P1,Execute,Mobile Messaging Channels,Character Limit Optimization,REQ-183
+REQ-192,Phase 1,P0,Execute,Web and Digital Experience,Web Content Management,Content platform
+REQ-193,Phase 2,P1,Execute,Web and Digital Experience,Personalization Engine,REQ-063-092
+REQ-194,Phase 2,P1,Execute,Web and Digital Experience,Web A/B Testing,REQ-157
+REQ-195,Phase 2,P1,Execute,Web and Digital Experience,Progressive Profiling,REQ-192
+REQ-196,Phase 2,P1,Execute,Web and Digital Experience,Form Optimization,REQ-192
+REQ-197,Phase 3,P2,Execute,Web and Digital Experience,Content Recommendations,REQ-193
+REQ-198,Phase 2,P1,Execute,Web and Digital Experience,Gated Content Management,REQ-192
+REQ-199,Phase 3,P2,Execute,Web and Digital Experience,Session Recording/Heatmaps,REQ-192
+REQ-200,Phase 1,P0,Execute,Web and Digital Experience,Website Analytics,REQ-024-030
+REQ-201,Phase 2,P1,Execute,Field Sales Enablement,Field Rep Dashboard,"REQ-005-009, 024-030"
+REQ-202,Phase 3,P2,Execute,Field Sales Enablement,Next-Best-Action Recs,REQ-079
+REQ-203,Phase 2,P1,Execute,Field Sales Enablement,Call Planning Tools,REQ-077
+REQ-204,Phase 2,P1,Execute,Field Sales Enablement,Sample Management,REQ-201
+REQ-205,Phase 2,P1,Execute,Field Sales Enablement,Closed-Loop Feedback,REQ-201
+REQ-206,Phase 3,P2,Execute,Field Sales Enablement,Speaker Program Coordination,REQ-201
+REQ-207,Phase 2,P1,Execute,Field Sales Enablement,Consent Verification,REQ-056-062
+REQ-208,Phase 2,P1,Execute,Field Sales Enablement,Content Delivery,REQ-107-132
+REQ-209,Phase 2,P1,Execute,Field Sales Enablement,Activity Synchronization,REQ-024-030
+REQ-210,Phase 2,P1,Execute,Patient Support Programs,Patient Enrollment Workflow,"REQ-005, 056-062"
+REQ-211,Phase 2,P1,Execute,Patient Support Programs,Copay Assistance Admin,REQ-210
+REQ-212,Phase 2,P1,Execute,Patient Support Programs,Adherence Monitoring,REQ-078
+REQ-213,Phase 2,P1,Execute,Patient Support Programs,Nurse Educator Coordination,REQ-210
+REQ-214,Phase 2,P1,Execute,Patient Support Programs,Educational Content Delivery,REQ-141-148
+REQ-215,Phase 2,P1,Execute,Patient Support Programs,Outcome Tracking,REQ-210
+REQ-216,Phase 2,P1,Execute,Patient Support Programs,Provider Coordination,REQ-210
+REQ-217,Phase 1,P0,Execute,Patient Support Programs,Adverse Event Detection,REQ-210
+REQ-218,Phase 2,P1,Execute,Patient Support Programs,Program Analytics Dashboard,REQ-210-217
+REQ-219,Phase 1,P0,Execute,Paid Advertising and Media Execution,Programmatic Advertising,Ad platform
+REQ-220,Phase 1,P0,Execute,Paid Advertising and Media Execution,HCP Targeting,"REQ-006, 064"
+REQ-221,Phase 2,P1,Execute,Paid Advertising and Media Execution,Patient Audience Targeting,"REQ-006, 063"
+REQ-222,Phase 2,P1,Execute,Paid Advertising and Media Execution,Contextual Targeting,REQ-219
+REQ-223,Phase 2,P1,Execute,Paid Advertising and Media Execution,Lookalike Audiences,REQ-082
+REQ-224,Phase 1,P0,Execute,Paid Advertising and Media Execution,Frequency Capping,REQ-145
+REQ-225,Phase 2,P1,Execute,Paid Advertising and Media Execution,Creative Rotation Testing,REQ-157
+REQ-226,Phase 1,P0,Execute,Paid Advertising and Media Execution,Brand Safety Controls,REQ-219
+REQ-227,Phase 2,P1,Execute,Paid Advertising and Media Execution,Viewability Optimization,REQ-219
+REQ-228,Phase 1,P0,Execute,Paid Advertising and Media Execution,Conversion Tracking,"REQ-006, 024-030"
+REQ-229,Phase 2,P1,Execute,Paid Advertising and Media Execution,Budget Pacing,REQ-219
+REQ-230,Phase 1,P0,Execute,Paid Advertising and Media Execution,Performance Reporting,REQ-024-030
+REQ-231,Phase 1,P0,Measure & Learn,Event Collection and Data Infrastructure,Universal Event Schema,"REQ-006, 050-055, warehouse"
+REQ-232,Phase 1,P0,Measure & Learn,Event Collection and Data Infrastructure,Client-Side Tracking,REQ-231
+REQ-233,Phase 1,P0,Measure & Learn,Event Collection and Data Infrastructure,Server-Side Event APIs,REQ-231
+REQ-234,Phase 1,P0,Measure & Learn,Event Collection and Data Infrastructure,Real-Time Event Streaming,REQ-231
+REQ-235,Phase 1,P0,Measure & Learn,Event Collection and Data Infrastructure,Event Enrichment Service,REQ-231
+REQ-236,Phase 1,P0,Measure & Learn,Event Collection and Data Infrastructure,Data Quality Monitoring,REQ-231-235
+REQ-237,Phase 1,P0,Measure & Learn,Event Collection and Data Infrastructure,Historical Data Retention,Warehouse storage
+REQ-238,Phase 1,P0,Measure & Learn,Event Collection and Data Infrastructure,Privacy-Compliant Handling,REQ-231
+REQ-239,Phase 1,P0,Measure & Learn,Campaign Performance Dashboards and Reporting,Campaign Dashboard,"REQ-231-238, BI platform"
+REQ-240,Phase 1,P0,Measure & Learn,Campaign Performance Dashboards and Reporting,Real-Time Metrics,REQ-234
+REQ-241,Phase 1,P0,Measure & Learn,Campaign Performance Dashboards and Reporting,Historical Trend Analysis,"REQ-237, 239"
+REQ-242,Phase 2,P1,Measure & Learn,Campaign Performance Dashboards and Reporting,Cohort Analysis,REQ-239
+REQ-243,Phase 2,P1,Measure & Learn,Campaign Performance Dashboards and Reporting,Funnel Visualization,REQ-239
+REQ-244,Phase 2,P1,Measure & Learn,Campaign Performance Dashboards and Reporting,Content Performance,"REQ-113, 239"
+REQ-245,Phase 1,P0,Measure & Learn,Campaign Performance Dashboards and Reporting,Channel Effectiveness,REQ-239
+REQ-246,Phase 2,P1,Measure & Learn,Campaign Performance Dashboards and Reporting,Geographic Breakdown,"REQ-067, 239"
+REQ-247,Phase 2,P1,Measure & Learn,Campaign Performance Dashboards and Reporting,Anomaly Detection,REQ-240
+REQ-248,Phase 2,P1,Measure & Learn,Campaign Performance Dashboards and Reporting,Scheduled Distribution,REQ-239
+REQ-249,Phase 2,P1,Measure & Learn,Attribution Modeling and Analysis,Attribution Data Mart,REQ-231-238
+REQ-250,Phase 2,P1,Measure & Learn,Attribution Modeling and Analysis,Rules-Based Attribution,REQ-249
+REQ-251,Phase 3,P2,Measure & Learn,Attribution Modeling and Analysis,Algorithmic Attribution,REQ-250
+REQ-252,Phase 3,P2,Measure & Learn,Attribution Modeling and Analysis,Shapley Value Attribution,REQ-250
+REQ-253,Phase 2,P1,Measure & Learn,Attribution Modeling and Analysis,Multi-Touch Attribution,REQ-249
+REQ-254,Phase 3,P2,Measure & Learn,Attribution Modeling and Analysis,Segment-Specific Models,"REQ-063-092, 253"
+REQ-255,Phase 2,P1,Measure & Learn,Attribution Modeling and Analysis,Model Comparison,REQ-250-252
+REQ-256,Phase 2,P1,Measure & Learn,Attribution Modeling and Analysis,Incrementality Measurement,REQ-159
+REQ-257,Phase 2,P1,Measure & Learn,Attribution Modeling and Analysis,Attribution Dashboard,REQ-249-256
+REQ-258,Phase 2,P1,Measure & Learn,Attribution Modeling and Analysis,Model Governance,REQ-083
+REQ-259,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Marketing Mix Modeling,18+ months data
+REQ-260,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Data Preparation Pipeline,REQ-259
+REQ-261,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Diminishing Returns Curves,REQ-259
+REQ-262,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Channel Interaction Effects,REQ-259
+REQ-263,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Time Lag Effects,REQ-259
+REQ-264,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Geographic Variation,"REQ-067, 259"
+REQ-265,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Scenario Simulation,REQ-259
+REQ-266,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Constrained Optimization,REQ-259
+REQ-267,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Confidence Intervals,REQ-259
+REQ-268,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Model Validation,REQ-259
+REQ-269,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,MMM Dashboard,REQ-259-268
+REQ-270,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Portfolio Data Model,Product hierarchy
+REQ-271,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Normalized Metrics,REQ-270
+REQ-272,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Launch Phase Tracking,REQ-270
+REQ-273,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Best Practice Identification,REQ-239-269
+REQ-274,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Competitive Intelligence,External data sources
+REQ-275,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Journey Pattern Library,REQ-136
+REQ-276,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Cross-Brand Learning,REQ-270-275
+REQ-277,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Portfolio Optimization,REQ-259-269
+REQ-278,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Therapeutic Area Benchmarks,REQ-270
+REQ-279,Phase 5,P2,Measure & Learn,Portfolio Analytics and Intelligence,Executive Portfolio Dashboard,REQ-270-278
+REQ-280,Phase 2,P1,Orchestrate,Journey Orchestration,Lightning Web Component Architecture,"Salesforce platform, REQ-005 through REQ-009 (customer data foundation), REQ-133 (journey canvas vision)"
+REQ-281,Phase 2,P1,Orchestrate,Journey Orchestration,Drag-and-Drop Node Library,"REQ-280 (canvas architecture), REQ-141 through REQ-148 (channel execution), REQ-152 (fatigue check API), REQ-157 (experimentation framework)"
+REQ-282,Phase 2,P1,Orchestrate,Journey Orchestration,Visual Flow Designer with Intelligent Layout,"REQ-280 (canvas architecture), REQ-281 (node library)"
+REQ-283,Phase 2,P1,Orchestrate,Journey Orchestration,Journey Template Library and Pattern Catalog,"REQ-280 through REQ-282 (canvas foundation), REQ-136 (template library vision)"
+REQ-284,Phase 2,P1,Govern,Journey Orchestration,Journey Versioning and Change Management,"REQ-280 through REQ-283 (canvas foundation), REQ-115 through REQ-123 (MLR workflow), REQ-031 (version control principle)"
+REQ-285,Phase 3,P2,Create,Journey Orchestration,Collaborative Journey Development Workflow,"REQ-280 through REQ-284 (canvas foundation), REQ-115 through REQ-123 (MLR workflow), Salesforce Chatter integration"
+REQ-286,Phase 3,P2,Orchestrate,Journey Orchestration,Journey Simulation and Testing Capability,"REQ-280 through REQ-285 (canvas foundation), REQ-005 through REQ-009 (customer data for realistic testing), REQ-138 (simulation vision)"
+REQ-287,Phase 2,P1,Govern,Journey Orchestration,Journey Documentation Generator,"REQ-280 through REQ-286 (canvas foundation providing data for documentation generation), REQ-115 through REQ-123 (MLR workflow), REQ-139 (documentation vision)"
+REQ-288,Phase 2,P1,Orchestrate,Journey Orchestration,A/B/n Testing Framework with Statistical Rigor,"REQ-157 (A/B testing vision), REQ-160 (statistical analysis library), REQ-231 through REQ-238 (event collection for outcome measurement)"
+REQ-289,Phase 3,P2,Orchestrate,Journey Orchestration,Multi-Armed Bandit Algorithms for Adaptive Optimization,"REQ-288 (A/B testing foundation), REQ-158 (bandit vision), REQ-160 (statistical libraries), REQ-231 through REQ-238 (real-time performance data)"
+REQ-290,Phase 2,P1,Orchestrate,Journey Orchestration,Holdout Group Management for Incrementality Measurement,"REQ-159 (holdout vision), REQ-288 (experimentation foundation), REQ-063 through REQ-092 (segmentation for holdout assignment), REQ-231 through REQ-238 (outcome measurement)"
+REQ-291,Phase 3,P2,Orchestrate,Journey Orchestration,Bayesian Optimization for Accelerated Learning,"REQ-288 (experimentation foundation), REQ-164 (Bayesian optimization vision), REQ-160 (statistical libraries with Bayesian capabilities), REQ-289 (bandit algorithms for Thompson sampling integration)"
+REQ-292,Phase 2,P1,Orchestrate,Journey Orchestration,Experiment Registry and Knowledge Management,"REQ-288 through REQ-291 (experimentation foundation generating data for registry), REQ-161 (registry vision), REQ-083 (model registry providing similar pattern for experiments)"
+REQ-293,Phase 2,P1,Govern,Journey Orchestration,Central Fatigue Registry Architecture,"REQ-024 through REQ-030 (event collection foundation), REQ-006 (identity resolution), REQ-149 (fatigue registry vision), time-series database deployment"
+REQ-294,Phase 2,P1,Govern,Journey Orchestration,Real-Time Fatigue Scoring Algorithm,"REQ-293 (fatigue registry providing data for scoring), REQ-069 through REQ-076 (engagement data for response patterns), REQ-150 (fatigue scoring vision)"
+REQ-295,Phase 2,P1,Govern,Journey Orchestration,Pre-Send Fatigue Validation API,"REQ-293 (fatigue registry), REQ-294 (fatigue scoring), REQ-141 through REQ-148 (execution platforms requiring integration), REQ-152 (pre-send API vision)"
+REQ-296,Phase 2,P1,Govern,Journey Orchestration,Fatigue Threshold Configuration and Segment Customization,"REQ-293 through REQ-295 (fatigue foundation), REQ-063 through REQ-092 (segmentation enabling threshold customization), REQ-151 (threshold configuration vision)"
+REQ-297,Phase 2,P2,Orchestrate,Journey Orchestration,Fatigue Impact Analysis and Reporting,"REQ-293 through REQ-296 (fatigue foundation generating data for analysis), REQ-069 through REQ-076 (engagement data for correlation analysis), REQ-239 through REQ-248 (reporting infrastructure), REQ-155 (impact analysis vision)"
+REQ-298,Phase 1,P0,Govern,ClaimID & MLR,ClaimID Data Model and Schema,"REQ-005 (Salesforce data foundation), REQ-010 (ClaimID vision from Section 1\)"
+REQ-299,Phase 1,P0,Govern,ClaimID & MLR,Claim Substantiation Evidence Management,"REQ-298 (ClaimID data model), REQ-035 (substantiation vault from Section 1), document management system or Salesforce Files integration"
+REQ-300,Phase 1,P0,Govern,ClaimID & MLR,Claim-to-Indication Mapping and Off-Label Detection,"REQ-298 (ClaimID data model), REQ-299 (evidence management), product indication data from regulatory affairs systems"
+REQ-301,Phase 1,P0,Govern,ClaimID & MLR,Claim Lifecycle Management and Renewal Workflow,"REQ-298 (ClaimID data model with expiry dates), REQ-299 (evidence management), REQ-011 (MLR workflow for renewal approvals)"
+REQ-302,Phase 2,P1,Govern,ClaimID & MLR,Claim Usage Tracking and Impact Analysis,"REQ-298 through REQ-301 (claim management foundation), REQ-107 (content-to-claim mapping from Section 2), content management system integration"
+REQ-303,Phase 1,P0,Govern,ClaimID & MLR,Multi-Stage Workflow Orchestration Engine,"REQ-298 through REQ-302 (claim management foundation), REQ-115 (MLR workflow vision from Section 2), Salesforce Flow or equivalent workflow engine"
+REQ-304,Phase 1,P0,Create,ClaimID & MLR,Role-Based Review Task Management,"REQ-303 (workflow orchestration), REQ-116 and REQ-117 (role-based access and task management from Section 2), Salesforce or task management platform integration"
+REQ-305,Phase 1,P0,Create,ClaimID & MLR,Structured Comment and Feedback Framework,"REQ-303 and REQ-304 (workflow and task management foundation), REQ-118 (structured comment taxonomy from Section 2\)"
+REQ-306,Phase 2,P1,Create,ClaimID & MLR,Version Comparison and Change Highlighting,"REQ-303 through REQ-305 (workflow and review foundation), REQ-104 (version control from Section 2), document comparison service or libraries"
+REQ-307,Phase 1,P0,Govern,ClaimID & MLR,Approval Documentation and Audit Trail,"REQ-303 through REQ-306 (workflow generating events for audit trail), REQ-033 (approval record repository from Section 1), REQ-132 (content audit trail from Section 2\)"
+REQ-308,Phase 1,P1,Create,ClaimID & MLR,MLR Performance Analytics and Continuous Improvement,"REQ-303 through REQ-307 (workflow generating performance data), REQ-123 (review metrics dashboard from Section 2), REQ-239 through REQ-248 (reporting infrastructure)"
+REQ-309,Phase 2,P1,Measure & Learn,Marketing Mix Modeling,Attribution Data Mart and Journey Reconstruction,"REQ-231 through REQ-238 (event collection infrastructure providing source data), REQ-006 (identity resolution enabling journey reconstruction), REQ-249 (attribution data mart vision from Section 2), cloud data warehouse deployment"
+REQ-310,Phase 2,P1,Measure & Learn,Marketing Mix Modeling,Rules-Based Attribution Models,"REQ-309 (attribution data mart providing journey data), REQ-250 (rules-based attribution vision from Section 2\)"
+REQ-311,Phase 3,P2,Measure & Learn,Marketing Mix Modeling,Algorithmic Attribution Using Machine Learning,"REQ-309 (attribution data mart with sufficient historical data for model training), REQ-310 (rules-based attribution providing baseline comparison), REQ-251 (algorithmic attribution vision from Section 2), machine learning platform or libraries"
+REQ-312,Phase 3,P2,Measure & Learn,Marketing Mix Modeling,Shapley Value Attribution for Fair Credit Allocation,"REQ-309 (attribution data mart), REQ-310 and REQ-311 (baseline attribution approaches for comparison), REQ-252 (Shapley attribution vision from Section 2), computational resources for intensive calculations"
+REQ-313,Phase 2,P1,Measure & Learn,Marketing Mix Modeling,Incrementality Measurement Through Holdout Testing,"REQ-309 (attribution data mart for outcome measurement), REQ-159 (holdout group management from Section 2), REQ-256 (incrementality measurement vision from Section 2), REQ-063 through REQ-092 (segmentation for holdout assignment)"
+REQ-314,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Marketing Mix Data Preparation Pipeline,"REQ-231 through REQ-238 (event collection providing marketing activity data), REQ-259 (MMM vision from Section 2), REQ-260 (data preparation vision), financial systems providing spending data, external data sources for competitive and market factors, minimum eighteen months historical data"
+REQ-315,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Bayesian Hierarchical Marketing Mix Model,"REQ-314 (data preparation pipeline), REQ-259 (MMM vision from Section 2), REQ-261 through REQ-264 (specific MMM features), statistical computing platform supporting Bayesian inference such as Stan or PyMC"
+REQ-316,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Scenario Simulation and What-If Analysis Engine,"REQ-315 (marketing mix model providing forecasting engine), REQ-265 (scenario simulation vision from Section 2\)"
+REQ-317,Phase 4,P2,Measure & Learn,Marketing Mix Modeling,Constrained Budget Optimization Solver,"REQ-315 (marketing mix model providing objective function), REQ-316 (scenario simulation validating optimized recommendations), REQ-266 (optimization solver vision from Section 2), optimization software libraries or platforms"
+REQ-318,Phase 2,P2,Govern,Marketing Mix Modeling,Marketing Mix Model Governance and Validation,"REQ-314 through REQ-317 (marketing mix modeling capabilities requiring governance), REQ-083 (model registry providing similar governance pattern), REQ-258 (attribution model governance), REQ-268 (MMM validation vision from Section 2\)"
+REQ-319,Phase 5,P2,Measure & Learn,Portfolio Analytics,Hierarchical Portfolio Data Model with Dimensional Analysis,"REQ-231 through REQ-248 (measurement foundation providing source data), REQ-270 (portfolio data model vision from Section 2), data warehouse infrastructure, minimum twelve months historical data across multiple brands"
+REQ-320,Phase 5,P2,Measure & Learn,Portfolio Analytics,Normalized Metrics for Fair Cross-Brand Comparison,"REQ-319 (portfolio data model providing calculation foundation), REQ-271 (normalized metrics vision from Section 2), market data for competitive benchmarking"
+REQ-321,Phase 5,P2,Measure & Learn,Portfolio Analytics,Phase-Appropriate Benchmarking and Cohort Analysis,"REQ-319 and REQ-320 (portfolio data model and normalized metrics), REQ-272 (launch phase tracking vision from Section 2), historical performance data across multiple brand launches"
+REQ-322,Phase 5,P2,Orchestrate,Portfolio Analytics,Journey Pattern Identification and Curation Workflow,"REQ-133 through REQ-140 (journey canvas enabling pattern capture), REQ-166 through REQ-173 (journey analytics providing performance data), REQ-273 (best practice identification vision from Section 2), REQ-275 (journey pattern library vision)"
+REQ-323,Phase 5,P2,Orchestrate,Portfolio Analytics,"Pattern Library Search, Discovery, and Recommendation","REQ-322 (pattern library content), REQ-136 (template library foundation), search and recommendation platform capabilities"
+REQ-324,Phase 5,P2,Orchestrate,Portfolio Analytics,Pattern Adaptation and Implementation Support,"REQ-322 and REQ-323 (pattern library foundation and discovery), REQ-133 through REQ-140 (journey canvas for implementation), REQ-286 (journey simulation)"
+REQ-325,Phase 5,P2,Measure & Learn,Portfolio Analytics,Competitive Intelligence Aggregation and Analysis,"REQ-319 (portfolio data model for competitive context), REQ-274 (competitive intelligence vision from Section 2), external competitive data sources and vendor integrations"
+REQ-326,Phase 5,P2,Measure & Learn,Portfolio Analytics,Portfolio-Level Budget Optimization Framework,"REQ-314 through REQ-318 (marketing mix modeling providing marginal return curves), REQ-277 (portfolio optimization vision from Section 2), optimization solver libraries or platforms"
+REQ-327,Phase 5,P2,Measure & Learn,Portfolio Analytics,Executive Portfolio Dashboard and Strategic Reporting,"REQ-319 through REQ-321 (portfolio data model and metrics), REQ-325 (competitive intelligence), REQ-279 (executive portfolio dashboard vision from Section 2), business intelligence platform"
+REQ-328,Phase 1,P0,Govern,Technical Requirements,Salesforce Platform Foundation,None \- foundational platform decision
+REQ-329,Phase 1,P0,Measure & Learn,Technical Requirements,Cloud Data Infrastructure,"REQ-328 (Salesforce providing source data), cloud platform selection"
+REQ-330,Phase 1,P0,Measure & Learn,Technical Requirements,Business Intelligence and Visualization Platform,"REQ-329 (data warehouse providing analytics data), platform selection based on organizational context"
+REQ-331,Phase 1,P0,Govern,Technical Requirements,API-First Integration Framework,"REQ-328 and REQ-329 (platforms requiring integration), external system APIs"
+REQ-332,Phase 1,P0,Govern,Technical Requirements,Master Data Management and Data Quality,"REQ-005 and REQ-006 (customer master data and identity resolution), integration architecture providing data flows"
+REQ-333,Phase 1,P0,Govern,Technical Requirements,Security Controls and Compliance Framework,"Platform architecture, integration framework requiring security controls"
+REQ-334,Phase 1,P0,Execute,Technical Requirements,"Performance, Scalability, and Reliability",Platform architecture and infrastructure design
+REQ-335,Phase 1,P1,Govern,Technical Requirements,DevOps Practices and Operational Excellence,"Platform architecture and infrastructure, development team establishment"
