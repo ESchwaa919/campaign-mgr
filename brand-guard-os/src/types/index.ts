@@ -282,3 +282,39 @@ export interface IntegrationStatus {
   lastSync?: Date;
   errorMessage?: string;
 }
+
+export type ContentAssetType =
+  | 'EMAIL_TEMPLATE'
+  | 'EMAIL_HTML'
+  | 'WEB_LANDING_PAGE'
+  | 'WEB_BANNER'
+  | 'WEB_ARTICLE'
+  | 'MOBILE_PUSH'
+  | 'MOBILE_IN_APP'
+  | 'PDF_DOCUMENT'
+  | 'VIDEO'
+  | 'IMAGE';
+
+export type ContentChannel = 'EMAIL' | 'WEB' | 'MOBILE' | 'PAID_MEDIA' | 'FIELD_SALES';
+
+export interface ContentAsset {
+  id: string;
+  title: string;
+  description: string;
+  assetType: ContentAssetType;
+  channel: ContentChannel;
+  brandId: string;
+  linkedClaimIds: string[];
+  mlrStatus: MLRStatus;
+  mlrCaseId?: string;
+  thumbnailUrl?: string;
+  fileUrl?: string;
+  tags: string[];
+  audienceType: EmailAudienceType;
+  version: number;
+  effectiveFrom: Date;
+  effectiveTo?: Date;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
