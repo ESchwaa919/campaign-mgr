@@ -12,6 +12,7 @@ import Segments from "./pages/Segments";
 import Email from "./pages/Email";
 import Events from "./pages/Events";
 import Admin from "./pages/Admin";
+import Journey from "./pages/Journey";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/segments" element={<Segments />} />
             <Route path="/email" element={<Email />} />
             <Route path="/events" element={<Events />} />
+            <Route path="/journey" element={<Journey />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
