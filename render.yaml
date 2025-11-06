@@ -1,15 +1,9 @@
 services:
-  - type: static
+  - type: web
     name: brandguard-os
-    runtime: node
-    plan: free
-    rootDir: brand-guard-os
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: public, max-age=3600
+    env: static
+    buildCommand: cd brand-guard-os && npm install && npm run build
+    staticPublishPath: brand-guard-os/dist
     routes:
       - type: rewrite
         source: /*
