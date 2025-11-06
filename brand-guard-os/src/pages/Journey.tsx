@@ -167,28 +167,41 @@ export default function Journey() {
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
       const data = event.dataTransfer.getData('application/reactflow');
 
-      if (!data || !reactFlowBounds || !reactFlowInstance) return;
+      if (!data || !reactFlowBounds || !reactFlowInstance) {
+        console.log('Drop failed:', { data, reactFlowBounds, reactFlowInstance });
+        return;
+      }
 
-      const { nodeConfig, contentAsset } = JSON.parse(data);
+      try {
+        const { nodeConfig, contentAsset } = JSON.parse(data);
 
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      });
+        // Convert screen coordinates to flow coordinates
+        const position = reactFlowInstance.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
 
-      const newNode: Node = {
-        id: `node-${nodeIdCounter}`,
-        type: 'journey',
-        data: {
-          label: nodeConfig.label,
-          nodeType: nodeConfig.nodeType,
-          contentAsset: contentAsset || undefined,
-        },
-        position,
-      };
+        console.log('Dropping at position:', position, 'from mouse:', {
+          x: event.clientX,
+          y: event.clientY
+        });
 
-      setNodes((nds) => [...nds, newNode]);
-      setNodeIdCounter((c) => c + 1);
+        const newNode: Node = {
+          id: `node-${nodeIdCounter}`,
+          type: 'journey',
+          data: {
+            label: nodeConfig.label,
+            nodeType: nodeConfig.nodeType,
+            contentAsset: contentAsset || undefined,
+          },
+          position,
+        };
+
+        setNodes((nds) => [...nds, newNode]);
+        setNodeIdCounter((c) => c + 1);
+      } catch (error) {
+        console.error('Error parsing drop data:', error);
+      }
     },
     [reactFlowInstance, nodeIdCounter]
   );
