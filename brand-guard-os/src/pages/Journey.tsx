@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -12,6 +12,8 @@ import ReactFlow, {
   EdgeChange,
   MarkerType,
   NodeTypes,
+  ReactFlowInstance,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,13 +42,13 @@ const nodeTypes: NodeTypes = {
 
 // Node type configurations
 const nodeTypeConfigs = [
-  { id: 'entry', label: 'Entry Point', nodeType: 'entry' },
-  { id: 'email', label: 'Email', nodeType: 'email' },
-  { id: 'web', label: 'Web Content', nodeType: 'web' },
-  { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile' },
-  { id: 'segment', label: 'Audience Filter', nodeType: 'segment' },
-  { id: 'wait', label: 'Wait', nodeType: 'wait' },
-  { id: 'decision', label: 'Decision Split', nodeType: 'decision' },
+  { id: 'entry', label: 'Entry Point', nodeType: 'entry', channel: null },
+  { id: 'email', label: 'Email', nodeType: 'email', channel: 'EMAIL' as ContentChannel },
+  { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
+  { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
+  { id: 'segment', label: 'Audience Filter', nodeType: 'segment', channel: null },
+  { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
+  { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
 ];
 
 // Mock data
@@ -57,7 +59,6 @@ const brands = [
 ];
 
 const audienceTypes = ['HCP', 'PATIENT'];
-const channels: ContentChannel[] = ['EMAIL', 'WEB', 'MOBILE', 'PAID_MEDIA', 'FIELD_SALES'];
 
 // Initial node for canvas
 const initialNodes: Node[] = [
@@ -72,22 +73,65 @@ const initialNodes: Node[] = [
 const initialEdges: Edge[] = [];
 
 export default function Journey() {
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+
   // Journey state
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
-  const [journeyName, setJourneyName] = useState('');
+  const [campaignLabel, setCampaignLabel] = useState('');
   const [nodeIdCounter, setNodeIdCounter] = useState(2);
 
-  // Hierarchy filters
+  // Hierarchy filters (reduced set)
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedAudienceType, setSelectedAudienceType] = useState('');
   const [selectedSegment, setSelectedSegment] = useState('');
-  const [selectedCampaign, setSelectedCampaign] = useState('');
-  const [selectedChannel, setSelectedChannel] = useState<ContentChannel | ''>('');
 
   // Content state
   const [selectedContent, setSelectedContent] = useState<ContentAsset | null>(null);
-  const [draggedContent, setDraggedContent] = useState<ContentAsset | null>(null);
+
+  // Track active channels from nodes on canvas
+  const activeChannels = useMemo(() => {
+    const channels = new Set<ContentChannel>();
+
+    nodes.forEach((node) => {
+      const config = nodeTypeConfigs.find((c) => c.nodeType === node.data.nodeType);
+      if (config?.channel) {
+        channels.add(config.channel);
+      }
+    });
+
+    return Array.from(channels);
+  }, [nodes]);
+
+  // Auto-generate campaign name
+  const campaignName = useMemo(() => {
+    const parts: string[] = [];
+
+    // Add brand
+    if (selectedBrand) {
+      const brand = brands.find((b) => b.id === selectedBrand);
+      if (brand) parts.push(brand.name);
+    }
+
+    // Add audience type
+    if (selectedAudienceType) {
+      parts.push(selectedAudienceType);
+    }
+
+    // Add channels (sorted alphabetically)
+    if (activeChannels.length > 0) {
+      const sortedChannels = [...activeChannels].sort();
+      parts.push(...sortedChannels);
+    }
+
+    // Add custom label
+    if (campaignLabel.trim()) {
+      parts.push(campaignLabel.trim());
+    }
+
+    return parts.length > 0 ? parts.join(' ') : 'Untitled Journey';
+  }, [selectedBrand, selectedAudienceType, activeChannels, campaignLabel]);
 
   // React Flow handlers
   const onNodesChange = useCallback(
@@ -115,13 +159,50 @@ export default function Journey() {
     []
   );
 
-  // Filtered segments based on brand and audience type
+  // Handle canvas drop
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+      const data = event.dataTransfer.getData('application/reactflow');
+
+      if (!data || !reactFlowBounds || !reactFlowInstance) return;
+
+      const { nodeConfig, contentAsset } = JSON.parse(data);
+
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+
+      const newNode: Node = {
+        id: `node-${nodeIdCounter}`,
+        type: 'journey',
+        data: {
+          label: nodeConfig.label,
+          nodeType: nodeConfig.nodeType,
+          contentAsset: contentAsset || undefined,
+        },
+        position,
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      setNodeIdCounter((c) => c + 1);
+    },
+    [reactFlowInstance, nodeIdCounter]
+  );
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  // Filtered segments based on audience type
   const filteredSegments = useMemo(() => {
     let segments = mockSegments;
 
-    // Filter by audience type (HCP segments vs Patient segments)
     if (selectedAudienceType) {
-      // This is simplified - in production, segments would have explicit audience type
       segments = segments.filter((seg) => {
         if (selectedAudienceType === 'HCP') {
           return seg.name.toLowerCase().includes('hcp') || seg.segmentType !== 'BEHAVIOURAL';
@@ -133,13 +214,7 @@ export default function Journey() {
     return segments;
   }, [selectedAudienceType]);
 
-  // Filtered campaigns based on brand
-  const filteredCampaigns = useMemo(() => {
-    if (!selectedBrand) return mockCampaigns;
-    return mockCampaigns.filter((campaign) => campaign.productId === selectedBrand);
-  }, [selectedBrand]);
-
-  // Smart filtered content with cascading logic
+  // Smart filtered content - uses brand, audience, and ACTIVE CHANNELS from canvas
   const filteredContent = useMemo(() => {
     let content = mockContentLibrary;
 
@@ -156,50 +231,33 @@ export default function Journey() {
       content = content.filter((c) => c.audienceType === selectedAudienceType);
     }
 
-    // Filter by channel
-    if (selectedChannel) {
-      content = content.filter((c) => c.channel === selectedChannel);
-    }
-
-    // Filter by campaign (via linked claims)
-    if (selectedCampaign) {
-      const campaign = mockCampaigns.find((c) => c.id === selectedCampaign);
-      if (campaign) {
-        content = content.filter((c) =>
-          c.linkedClaimIds.some((claimId) => campaign.linkedClaimIds.includes(claimId))
-        );
-      }
+    // Filter by active channels on canvas
+    if (activeChannels.length > 0) {
+      content = content.filter((c) => activeChannels.includes(c.channel));
     }
 
     return content;
-  }, [selectedBrand, selectedAudienceType, selectedChannel, selectedCampaign]);
+  }, [selectedBrand, selectedAudienceType, activeChannels]);
 
   // Reset downstream filters when upstream changes
-  useEffect(() => {
-    if (selectedBrand) {
-      setSelectedCampaign('');
-    }
-  }, [selectedBrand]);
-
   useEffect(() => {
     if (selectedAudienceType) {
       setSelectedSegment('');
     }
   }, [selectedAudienceType]);
 
-  // Add node to canvas
-  const addNode = (nodeConfig: typeof nodeTypeConfigs[number], content?: ContentAsset) => {
+  // Add node to canvas from palette
+  const addNodeFromPalette = (nodeConfig: typeof nodeTypeConfigs[number]) => {
     const newNode: Node = {
       id: `node-${nodeIdCounter}`,
       type: 'journey',
       data: {
         label: nodeConfig.label,
         nodeType: nodeConfig.nodeType,
-        contentAsset: content,
       },
       position: {
-        x: Math.random() * 400 + 200,
-        y: Math.random() * 300 + 200,
+        x: 300 + Math.random() * 200,
+        y: 200 + Math.random() * 200,
       },
     };
 
@@ -209,7 +267,6 @@ export default function Journey() {
 
   // Add node with content from details panel
   const addContentToCanvas = (content: ContentAsset) => {
-    // Determine node type based on content channel
     const channelToNodeType: Record<string, string> = {
       EMAIL: 'email',
       WEB: 'web',
@@ -219,19 +276,56 @@ export default function Journey() {
     const nodeType = channelToNodeType[content.channel] || 'email';
     const nodeConfig = nodeTypeConfigs.find((n) => n.nodeType === nodeType)!;
 
-    addNode(nodeConfig, content);
+    const newNode: Node = {
+      id: `node-${nodeIdCounter}`,
+      type: 'journey',
+      data: {
+        label: nodeConfig.label,
+        nodeType: nodeConfig.nodeType,
+        contentAsset: content,
+      },
+      position: {
+        x: 300 + Math.random() * 200,
+        y: 200 + Math.random() * 200,
+      },
+    };
+
+    setNodes((nds) => [...nds, newNode]);
+    setNodeIdCounter((c) => c + 1);
     setSelectedContent(null);
+  };
+
+  // Handle content drag start
+  const handleContentDragStart = (content: ContentAsset) => {
+    const channelToNodeType: Record<string, string> = {
+      EMAIL: 'email',
+      WEB: 'web',
+      MOBILE: 'mobile',
+    };
+
+    const nodeType = channelToNodeType[content.channel] || 'email';
+    const nodeConfig = nodeTypeConfigs.find((n) => n.nodeType === nodeType)!;
+
+    return { nodeConfig, contentAsset: content };
+  };
+
+  // Handle node palette drag start
+  const handleNodeDragStart = (event: React.DragEvent, nodeConfig: typeof nodeTypeConfigs[number]) => {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData(
+      'application/reactflow',
+      JSON.stringify({ nodeConfig, contentAsset: null })
+    );
   };
 
   // Save/load journey
   const saveJourney = () => {
     const journey = {
-      name: journeyName,
+      name: campaignName,
       brand: selectedBrand,
       audienceType: selectedAudienceType,
       segment: selectedSegment,
-      campaign: selectedCampaign,
-      channel: selectedChannel,
+      label: campaignLabel,
       nodes,
       edges,
       createdAt: new Date().toISOString(),
@@ -244,12 +338,10 @@ export default function Journey() {
     const saved = localStorage.getItem('savedJourney');
     if (saved) {
       const journey = JSON.parse(saved);
-      setJourneyName(journey.name);
       setSelectedBrand(journey.brand || '');
       setSelectedAudienceType(journey.audienceType || '');
       setSelectedSegment(journey.segment || '');
-      setSelectedCampaign(journey.campaign || '');
-      setSelectedChannel(journey.channel || '');
+      setCampaignLabel(journey.label || '');
       setNodes(journey.nodes);
       setEdges(journey.edges);
     }
@@ -263,7 +355,7 @@ export default function Journey() {
           <div>
             <h1 className="text-2xl font-bold">Journey Canvas</h1>
             <p className="text-sm text-muted-foreground">
-              Visual campaign journey builder with smart content filtering
+              Select filters → Drag nodes → Content auto-filters by channels on canvas
             </p>
           </div>
           <div className="flex gap-2">
@@ -282,157 +374,122 @@ export default function Journey() {
           </div>
         </div>
 
-        {/* Complete 6-Level Hierarchy Filters */}
-        <div className="grid grid-cols-6 gap-3">
-          {/* 1. Brand */}
-          <div className="space-y-1">
-            <Label htmlFor="brand" className="text-xs">
-              1. Brand
-            </Label>
-            <Select value={selectedBrand} onValueChange={setSelectedBrand}>
-              <SelectTrigger id="brand" className="h-9">
-                <SelectValue placeholder="Select brand" />
-              </SelectTrigger>
-              <SelectContent>
-                {brands.map((brand) => (
-                  <SelectItem key={brand.id} value={brand.id}>
-                    {brand.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Simplified 3-Level Hierarchy + Campaign Name + Channels Display */}
+        <div className="space-y-3">
+          {/* Row 1: Core Filters */}
+          <div className="grid grid-cols-4 gap-3">
+            {/* 1. Brand */}
+            <div className="space-y-1">
+              <Label htmlFor="brand" className="text-xs">
+                1. Brand
+              </Label>
+              <Select value={selectedBrand} onValueChange={setSelectedBrand}>
+                <SelectTrigger id="brand" className="h-9">
+                  <SelectValue placeholder="Select brand" />
+                </SelectTrigger>
+                <SelectContent>
+                  {brands.map((brand) => (
+                    <SelectItem key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 2. Target Audience */}
+            <div className="space-y-1">
+              <Label htmlFor="audience-type" className="text-xs">
+                2. Target Audience
+              </Label>
+              <Select value={selectedAudienceType} onValueChange={setSelectedAudienceType}>
+                <SelectTrigger id="audience-type" className="h-9">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {audienceTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 3. Audience Segment */}
+            <div className="space-y-1">
+              <Label htmlFor="segment" className="text-xs">
+                3. Segment
+              </Label>
+              <Select
+                value={selectedSegment}
+                onValueChange={setSelectedSegment}
+                disabled={!selectedAudienceType}
+              >
+                <SelectTrigger id="segment" className="h-9">
+                  <SelectValue placeholder="Select segment" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredSegments.map((segment) => (
+                    <SelectItem key={segment.id} value={segment.id}>
+                      {segment.name} ({segment.estimatedCount.toLocaleString()})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Optional Campaign Label */}
+            <div className="space-y-1">
+              <Label htmlFor="campaign-label" className="text-xs">
+                Optional Label
+              </Label>
+              <Input
+                id="campaign-label"
+                placeholder="e.g., Q4 Launch"
+                value={campaignLabel}
+                onChange={(e) => setCampaignLabel(e.target.value)}
+                className="h-9"
+              />
+            </div>
           </div>
 
-          {/* 2. Target Audience */}
-          <div className="space-y-1">
-            <Label htmlFor="audience-type" className="text-xs">
-              2. Target Audience
-            </Label>
-            <Select value={selectedAudienceType} onValueChange={setSelectedAudienceType}>
-              <SelectTrigger id="audience-type" className="h-9">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {audienceTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Row 2: Auto-Generated Campaign Name & Active Channels */}
+          <div className="border rounded-lg p-3 bg-muted/30">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Auto-Generated Campaign Name */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">
+                  Campaign Name (Auto-Generated)
+                </p>
+                <p className="text-sm font-semibold">{campaignName}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Format: Brand + Audience + Channels + Label
+                </p>
+              </div>
 
-          {/* 3. Audience Segment */}
-          <div className="space-y-1">
-            <Label htmlFor="segment" className="text-xs">
-              3. Segment
-            </Label>
-            <Select
-              value={selectedSegment}
-              onValueChange={setSelectedSegment}
-              disabled={!selectedAudienceType}
-            >
-              <SelectTrigger id="segment" className="h-9">
-                <SelectValue placeholder="Select segment" />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredSegments.map((segment) => (
-                  <SelectItem key={segment.id} value={segment.id}>
-                    {segment.name} ({segment.estimatedCount.toLocaleString()})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 4. Campaign */}
-          <div className="space-y-1">
-            <Label htmlFor="campaign" className="text-xs">
-              4. Campaign
-            </Label>
-            <Select
-              value={selectedCampaign}
-              onValueChange={setSelectedCampaign}
-              disabled={!selectedBrand}
-            >
-              <SelectTrigger id="campaign" className="h-9">
-                <SelectValue placeholder="Select campaign" />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredCampaigns.map((campaign) => (
-                  <SelectItem key={campaign.id} value={campaign.id}>
-                    {campaign.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 5. Channel */}
-          <div className="space-y-1">
-            <Label htmlFor="channel" className="text-xs">
-              5. Channel
-            </Label>
-            <Select value={selectedChannel} onValueChange={(v) => setSelectedChannel(v as ContentChannel | '')}>
-              <SelectTrigger id="channel" className="h-9">
-                <SelectValue placeholder="Select channel" />
-              </SelectTrigger>
-              <SelectContent>
-                {channels.map((channel) => (
-                  <SelectItem key={channel} value={channel}>
-                    {channel}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 6. Journey Name */}
-          <div className="space-y-1">
-            <Label htmlFor="journey-name" className="text-xs">
-              Journey Name
-            </Label>
-            <Input
-              id="journey-name"
-              placeholder="e.g., Q4 HCP Launch"
-              value={journeyName}
-              onChange={(e) => setJourneyName(e.target.value)}
-              className="h-9"
-            />
+              {/* Active Channels (from canvas nodes) */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">
+                  Active Channels (from canvas)
+                </p>
+                {activeChannels.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {activeChannels.map((channel) => (
+                      <Badge key={channel} variant="default" className="text-xs">
+                        {channel}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">
+                    Drag Email/Web/Mobile nodes to canvas to activate channels
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Filter Context Badges */}
-        {(selectedBrand || selectedAudienceType || selectedSegment || selectedCampaign || selectedChannel) && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground">Context:</span>
-            {selectedBrand && (
-              <Badge variant="outline" className="text-xs">
-                {brands.find((b) => b.id === selectedBrand)?.name}
-              </Badge>
-            )}
-            {selectedAudienceType && (
-              <Badge variant="outline" className="text-xs">
-                {selectedAudienceType}
-              </Badge>
-            )}
-            {selectedSegment && (
-              <Badge variant="outline" className="text-xs">
-                {filteredSegments.find((s) => s.id === selectedSegment)?.name}
-              </Badge>
-            )}
-            {selectedCampaign && (
-              <Badge variant="outline" className="text-xs">
-                {filteredCampaigns.find((c) => c.id === selectedCampaign)?.name}
-              </Badge>
-            )}
-            {selectedChannel && (
-              <Badge variant="outline" className="text-xs">
-                {selectedChannel}
-              </Badge>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Main Content */}
@@ -442,28 +499,40 @@ export default function Journey() {
           <CardContent className="p-3 space-y-1 flex-1 overflow-auto">
             <p className="text-xs font-medium text-muted-foreground mb-2">Node Types</p>
             {nodeTypeConfigs.map((config) => (
-              <Button
+              <div
                 key={config.id}
-                variant="outline"
-                size="sm"
-                className="w-full justify-start h-8 text-xs"
-                onClick={() => addNode(config)}
+                draggable
+                onDragStart={(e) => handleNodeDragStart(e, config)}
+                onClick={() => addNodeFromPalette(config)}
+                className="cursor-move"
               >
-                <Plus className="h-3 w-3 mr-2" />
-                {config.label}
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start h-8 text-xs pointer-events-none"
+                >
+                  <Plus className="h-3 w-3 mr-2" />
+                  {config.label}
+                </Button>
+              </div>
             ))}
           </CardContent>
         </Card>
 
         {/* Canvas */}
-        <div className="flex-1 m-4 ml-0 border rounded-lg bg-background">
+        <div
+          ref={reactFlowWrapper}
+          className="flex-1 m-4 ml-0 border rounded-lg bg-background"
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+        >
           <ReactFlow
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
             fitView
           >
@@ -478,12 +547,15 @@ export default function Journey() {
             content={filteredContent}
             totalCount={mockContentLibrary.length}
             onContentSelect={setSelectedContent}
-            onContentDrag={setDraggedContent}
+            onContentDrag={(content) => {
+              const dragData = handleContentDragStart(content);
+              // This is called on drag start, actual drag is handled by the component
+            }}
             selectedContentId={selectedContent?.id}
           />
         </div>
 
-        {/* Content Details Panel (overlays on right when content selected) */}
+        {/* Content Details Panel */}
         {selectedContent && (
           <div className="absolute right-4 top-32 bottom-4 z-10">
             <ContentDetailsPanel

@@ -57,10 +57,29 @@ export function ContentLibrary({
                 <div
                   key={asset.id}
                   draggable
-                  onDragStart={() => onContentDrag(asset)}
+                  onDragStart={(e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    const channelToNodeType: Record<string, string> = {
+                      EMAIL: 'email',
+                      WEB: 'web',
+                      MOBILE: 'mobile',
+                    };
+                    const nodeType = channelToNodeType[asset.channel] || 'email';
+                    const nodeTypeConfigs = [
+                      { id: 'email', label: 'Email', nodeType: 'email' },
+                      { id: 'web', label: 'Web Content', nodeType: 'web' },
+                      { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile' },
+                    ];
+                    const nodeConfig = nodeTypeConfigs.find((n) => n.nodeType === nodeType)!;
+                    e.dataTransfer.setData(
+                      'application/reactflow',
+                      JSON.stringify({ nodeConfig, contentAsset: asset })
+                    );
+                    onContentDrag(asset);
+                  }}
                   onClick={() => onContentSelect(asset)}
                   className={`
-                    relative group cursor-pointer rounded-lg border transition-all
+                    relative group cursor-move rounded-lg border transition-all
                     ${
                       selectedContentId === asset.id
                         ? 'border-primary bg-primary/5 shadow-sm'
