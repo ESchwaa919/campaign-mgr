@@ -100,12 +100,20 @@ export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
       </div>
 
       {/* Design Mode Content */}
-      {!isAnalyticsMode && data.contentAsset && (
+      {!isAnalyticsMode && (data.nodeType === 'email' || data.nodeType === 'web' || data.nodeType === 'mobile') && (
         <div className="mt-2 space-y-1">
-          <Badge variant="secondary" className="text-xs font-mono">
-            {data.contentAsset.id}
-          </Badge>
-          <p className="text-xs truncate">{data.contentAsset.title}</p>
+          {data.contentAsset ? (
+            <>
+              <Badge variant="secondary" className="text-xs font-mono">
+                {data.contentAsset.id}
+              </Badge>
+              <p className="text-xs truncate">{data.contentAsset.title}</p>
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground italic">
+              Drag content from library →
+            </p>
+          )}
         </div>
       )}
 

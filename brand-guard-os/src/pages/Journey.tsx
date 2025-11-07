@@ -53,8 +53,11 @@ const nodeTypeConfigs = [
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
 ];
 
-// Simplified palette - only structural nodes (content comes from library)
+// Palette nodes - structural + content touchpoints (can add without content, attach later)
 const paletteNodes = [
+  { id: 'email', label: 'Email', nodeType: 'email', channel: 'EMAIL' as ContentChannel },
+  { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
+  { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
 ];
@@ -201,6 +204,37 @@ export default function Journey() {
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
     []
   );
+
+  // Handle dropping content onto existing nodes
+  const onNodeDrop = useCallback((event: React.DragEvent, node: Node) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const data = event.dataTransfer.getData('application/reactflow');
+    if (!data) return;
+
+    try {
+      const { contentAsset } = JSON.parse(data);
+      if (!contentAsset) return;
+
+      // Update the node with the content
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === node.id
+            ? {
+                ...n,
+                data: {
+                  ...n.data,
+                  contentAsset,
+                },
+              }
+            : n
+        )
+      );
+    } catch (error) {
+      console.error('Error attaching content to node:', error);
+    }
+  }, []);
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
@@ -718,33 +752,65 @@ export default function Journey() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Simplified Node Palette - Only Structural Nodes */}
-        <Card className="w-40 m-4 mr-0 rounded-r-none border-r-0 flex flex-col">
-          <CardContent className="p-3 space-y-2 flex-1 overflow-auto">
-            <div className="mb-2">
-              <p className="text-xs font-medium text-muted-foreground">Flow Control</p>
-              <p className="text-xs text-muted-foreground/70 mt-0.5">
-                Content → drag from right
+        {/* Node Palette */}
+        <Card className="w-48 m-4 mr-0 rounded-r-none border-r-0 flex flex-col">
+          <CardContent className="p-3 space-y-3 flex-1 overflow-auto">
+            {/* Touchpoints Section */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Touchpoints</p>
+              <div className="space-y-1">
+                {paletteNodes
+                  .filter((n) => n.channel !== null)
+                  .map((config) => (
+                    <div
+                      key={config.id}
+                      draggable
+                      onDragStart={(e) => handleNodeDragStart(e, config)}
+                      onClick={() => addNodeFromPalette(config)}
+                      className="cursor-move"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start h-8 text-xs pointer-events-none"
+                      >
+                        <Plus className="h-3 w-3 mr-2" />
+                        {config.label}
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+              <p className="text-xs text-muted-foreground/70 mt-2">
+                Add node, then attach content
               </p>
             </div>
-            {paletteNodes.map((config) => (
-              <div
-                key={config.id}
-                draggable
-                onDragStart={(e) => handleNodeDragStart(e, config)}
-                onClick={() => addNodeFromPalette(config)}
-                className="cursor-move"
-              >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start h-8 text-xs pointer-events-none"
-                >
-                  <Plus className="h-3 w-3 mr-2" />
-                  {config.label}
-                </Button>
+
+            {/* Flow Control Section */}
+            <div className="pt-2 border-t">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Flow Control</p>
+              <div className="space-y-1">
+                {paletteNodes
+                  .filter((n) => n.channel === null)
+                  .map((config) => (
+                    <div
+                      key={config.id}
+                      draggable
+                      onDragStart={(e) => handleNodeDragStart(e, config)}
+                      onClick={() => addNodeFromPalette(config)}
+                      className="cursor-move"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start h-8 text-xs pointer-events-none"
+                      >
+                        <Plus className="h-3 w-3 mr-2" />
+                        {config.label}
+                      </Button>
+                    </div>
+                  ))}
               </div>
-            ))}
+            </div>
           </CardContent>
         </Card>
 
