@@ -318,3 +318,26 @@ export interface ContentAsset {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type JourneyStatus = 'DESIGN' | 'REVIEW' | 'APPROVED' | 'ACTIVE' | 'COMPLETE' | 'PAUSED';
+
+export interface JourneyNodeMetrics {
+  nodeId: string;
+  entered: number;
+  completed: number;
+  inProgress: number;
+  dropped: number;
+  sent?: number;
+  delivered?: number;
+  opened?: number;
+  clicked?: number;
+  converted?: number;
+  averageTimeSpent?: number; // in seconds
+}
+
+export interface JourneyEdgeMetrics {
+  sourceNodeId: string;
+  targetNodeId: string;
+  transitioned: number;
+  transitionRate: number; // percentage
+}

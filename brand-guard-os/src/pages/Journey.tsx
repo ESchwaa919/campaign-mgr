@@ -28,25 +28,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Save, Download, Upload, Plus } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Save, Download, Upload, Plus, Play, Pause, BarChart3 } from 'lucide-react';
 import { JourneyNode } from '@/components/JourneyNode';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
 import { mockSegments, mockCampaigns, mockContentLibrary } from '@/lib/mockData';
-import type { ContentAsset, ContentChannel, Segment } from '@/types';
+import type { ContentAsset, ContentChannel, Segment, JourneyStatus, JourneyNodeMetrics } from '@/types';
 
 // Node types for React Flow
 const nodeTypes: NodeTypes = {
   journey: JourneyNode,
 };
 
-// Node type configurations
+// Node type configurations (full set for content library)
 const nodeTypeConfigs = [
   { id: 'entry', label: 'Entry Point', nodeType: 'entry', channel: null },
   { id: 'email', label: 'Email', nodeType: 'email', channel: 'EMAIL' as ContentChannel },
   { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
   { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
   { id: 'segment', label: 'Audience Filter', nodeType: 'segment', channel: null },
+  { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
+  { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
+];
+
+// Simplified palette - only structural nodes (content comes from library)
+const paletteNodes = [
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
 ];
@@ -89,6 +96,55 @@ export default function Journey() {
 
   // Content state
   const [selectedContent, setSelectedContent] = useState<ContentAsset | null>(null);
+
+  // Journey lifecycle and tracking
+  const [journeyStatus, setJourneyStatus] = useState<JourneyStatus>('DESIGN');
+  const [viewMode, setViewMode] = useState<'design' | 'analytics'>('design');
+
+  // Mock metrics data (simulates live execution data)
+  const mockNodeMetrics: Record<string, JourneyNodeMetrics> = useMemo(() => ({
+    '1': {
+      nodeId: '1',
+      entered: 1500,
+      completed: 1247,
+      inProgress: 0,
+      dropped: 253,
+      sent: 1247,
+      delivered: 1235,
+    },
+    'node-1': {
+      nodeId: 'node-1',
+      entered: 1247,
+      completed: 892,
+      inProgress: 123,
+      dropped: 232,
+      sent: 1247,
+      delivered: 1235,
+      opened: 892,
+      clicked: 234,
+      converted: 45,
+    },
+    'node-2': {
+      nodeId: 'node-2',
+      entered: 892,
+      completed: 623,
+      inProgress: 89,
+      dropped: 180,
+      averageTimeSpent: 86400, // 24 hours
+    },
+    'node-3': {
+      nodeId: 'node-3',
+      entered: 623,
+      completed: 445,
+      inProgress: 67,
+      dropped: 111,
+      sent: 623,
+      delivered: 615,
+      opened: 445,
+      clicked: 167,
+      converted: 89,
+    },
+  }), []);
 
   // Track active channels from nodes on canvas
   const activeChannels = useMemo(() => {
@@ -152,6 +208,9 @@ export default function Journey() {
             ...params,
             markerEnd: { type: MarkerType.ArrowClosed },
             style: { strokeWidth: 2 },
+            label: '', // Will be updated based on view mode
+            labelStyle: { fontSize: 11, fontWeight: 600 },
+            labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
           },
           eds
         )
@@ -193,6 +252,8 @@ export default function Journey() {
             label: nodeConfig.label,
             nodeType: nodeConfig.nodeType,
             contentAsset: contentAsset || undefined,
+            viewMode,
+            metrics: mockNodeMetrics[`node-${nodeIdCounter}`],
           },
           position,
         };
@@ -258,6 +319,49 @@ export default function Journey() {
       setSelectedSegment('');
     }
   }, [selectedAudienceType]);
+
+  // Update node data when view mode changes
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          viewMode,
+          metrics: mockNodeMetrics[node.id],
+        },
+      }))
+    );
+  }, [viewMode, mockNodeMetrics]);
+
+  // Update edge labels when view mode changes
+  useEffect(() => {
+    if (viewMode === 'analytics') {
+      setEdges((eds) =>
+        eds.map((edge) => {
+          // Get metrics for target node to show how many entered it
+          const targetMetrics = mockNodeMetrics[edge.target];
+          if (targetMetrics?.entered) {
+            return {
+              ...edge,
+              label: `${targetMetrics.entered.toLocaleString()} →`,
+              animated: true,
+            };
+          }
+          return edge;
+        })
+      );
+    } else {
+      // Remove labels in design mode
+      setEdges((eds) =>
+        eds.map((edge) => ({
+          ...edge,
+          label: '',
+          animated: false,
+        }))
+      );
+    }
+  }, [viewMode, mockNodeMetrics]);
 
   // Add node to canvas from palette
   const addNodeFromPalette = (nodeConfig: typeof nodeTypeConfigs[number]) => {
@@ -365,13 +469,64 @@ export default function Journey() {
       {/* Header */}
       <div className="border-b bg-background p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Journey Canvas</h1>
-            <p className="text-sm text-muted-foreground">
-              Select filters → Drag nodes → Content auto-filters by channels on canvas
-            </p>
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold">Journey Canvas</h1>
+              <p className="text-sm text-muted-foreground">
+                {viewMode === 'design'
+                  ? 'Select filters → Drag content → Build journey'
+                  : 'Live execution tracking and performance metrics'}
+              </p>
+            </div>
+            {/* Journey Status Badge */}
+            <Badge
+              variant={journeyStatus === 'ACTIVE' ? 'default' : 'secondary'}
+              className="h-6 text-xs"
+            >
+              {journeyStatus === 'DESIGN' && '🎨 Design'}
+              {journeyStatus === 'REVIEW' && '🔍 In Review'}
+              {journeyStatus === 'APPROVED' && '✅ Approved'}
+              {journeyStatus === 'ACTIVE' && '▶️ Active'}
+              {journeyStatus === 'COMPLETE' && '📊 Complete'}
+              {journeyStatus === 'PAUSED' && '⏸️ Paused'}
+            </Badge>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3 items-center">
+            {/* View Mode Toggle */}
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'design' | 'analytics')}>
+              <TabsList className="h-9">
+                <TabsTrigger value="design" className="text-xs">
+                  Design
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="text-xs" disabled={journeyStatus === 'DESIGN'}>
+                  <BarChart3 className="h-3 w-3 mr-1" />
+                  Analytics
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {/* Journey Actions */}
+            {journeyStatus === 'DESIGN' && (
+              <Button
+                size="sm"
+                variant="default"
+                onClick={() => setJourneyStatus('ACTIVE')}
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Activate Journey
+              </Button>
+            )}
+            {journeyStatus === 'ACTIVE' && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setJourneyStatus('PAUSED')}
+              >
+                <Pause className="h-4 w-4 mr-2" />
+                Pause
+              </Button>
+            )}
+
             <Button variant="outline" size="sm" onClick={loadJourney}>
               <Upload className="h-4 w-4 mr-2" />
               Load
@@ -380,7 +535,7 @@ export default function Journey() {
               <Save className="h-4 w-4 mr-2" />
               Save
             </Button>
-            <Button size="sm">
+            <Button size="sm" variant="outline">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
@@ -507,11 +662,16 @@ export default function Journey() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Node Palette */}
-        <Card className="w-48 m-4 mr-0 rounded-r-none border-r-0 flex flex-col">
-          <CardContent className="p-3 space-y-1 flex-1 overflow-auto">
-            <p className="text-xs font-medium text-muted-foreground mb-2">Node Types</p>
-            {nodeTypeConfigs.map((config) => (
+        {/* Simplified Node Palette - Only Structural Nodes */}
+        <Card className="w-40 m-4 mr-0 rounded-r-none border-r-0 flex flex-col">
+          <CardContent className="p-3 space-y-2 flex-1 overflow-auto">
+            <div className="mb-2">
+              <p className="text-xs font-medium text-muted-foreground">Flow Control</p>
+              <p className="text-xs text-muted-foreground/70 mt-0.5">
+                Content → drag from right
+              </p>
+            </div>
+            {paletteNodes.map((config) => (
               <div
                 key={config.id}
                 draggable

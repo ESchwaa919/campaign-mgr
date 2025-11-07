@@ -1,12 +1,14 @@
 import { Handle, Position } from 'reactflow';
 import { Badge } from '@/components/ui/badge';
-import type { ContentAsset } from '@/types';
-import { Mail, Globe, Smartphone, Users, Clock, Play, GitBranch } from 'lucide-react';
+import type { ContentAsset, JourneyNodeMetrics } from '@/types';
+import { Mail, Globe, Smartphone, Users, Clock, Play, GitBranch, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 interface JourneyNodeData {
   label: string;
   nodeType: 'entry' | 'email' | 'web' | 'mobile' | 'segment' | 'wait' | 'decision';
   contentAsset?: ContentAsset;
+  viewMode?: 'design' | 'analytics';
+  metrics?: JourneyNodeMetrics;
 }
 
 interface JourneyNodeProps {
@@ -27,10 +29,25 @@ const nodeTypeConfig = {
 export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
   const config = nodeTypeConfig[data.nodeType];
   const Icon = config.icon;
+  const isAnalyticsMode = data.viewMode === 'analytics';
+  const metrics = data.metrics;
+
+  // Calculate rates
+  const openRate = metrics?.sent && metrics?.opened
+    ? ((metrics.opened / metrics.sent) * 100).toFixed(1)
+    : null;
+  const clickRate = metrics?.sent && metrics?.clicked
+    ? ((metrics.clicked / metrics.sent) * 100).toFixed(1)
+    : null;
+  const conversionRate = metrics?.entered && metrics?.converted
+    ? ((metrics.converted / metrics.entered) * 100).toFixed(1)
+    : null;
 
   return (
     <div
-      className={`relative px-4 py-3 rounded-lg border-2 min-w-[180px] group ${config.color} transition-all hover:shadow-md`}
+      className={`relative px-4 py-3 rounded-lg border-2 min-w-[180px] group ${config.color} transition-all hover:shadow-md ${
+        isAnalyticsMode && metrics ? 'min-w-[220px]' : ''
+      }`}
     >
       {/* Top Handle */}
       <Handle
@@ -50,19 +67,90 @@ export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
         className="!w-3 !h-3 !bg-gray-400 !border-2 !border-white opacity-0 group-hover:opacity-100 transition-opacity"
       />
 
-      {/* Content */}
+      {/* Header */}
       <div className="flex items-center gap-2 mb-1">
         <Icon className="h-4 w-4 flex-shrink-0" />
         <span className="font-medium text-sm">{data.label}</span>
+        {isAnalyticsMode && metrics && metrics.completed > 0 && (
+          <CheckCircle2 className="h-3 w-3 ml-auto text-green-600" />
+        )}
       </div>
 
-      {/* Content Asset Badge */}
-      {data.contentAsset && (
+      {/* Design Mode Content */}
+      {!isAnalyticsMode && data.contentAsset && (
         <div className="mt-2 space-y-1">
           <Badge variant="secondary" className="text-xs font-mono">
             {data.contentAsset.id}
           </Badge>
           <p className="text-xs truncate">{data.contentAsset.title}</p>
+        </div>
+      )}
+
+      {/* Analytics Mode Metrics */}
+      {isAnalyticsMode && metrics && (
+        <div className="mt-2 space-y-1.5">
+          {/* Email/Web/Mobile specific metrics */}
+          {(data.nodeType === 'email' || data.nodeType === 'web' || data.nodeType === 'mobile') && (
+            <>
+              {metrics.sent && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Sent</span>
+                  <span className="font-semibold">{metrics.sent.toLocaleString()}</span>
+                </div>
+              )}
+              {metrics.opened && openRate && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Opened</span>
+                  <span className="font-semibold">
+                    {metrics.opened.toLocaleString()} ({openRate}%)
+                  </span>
+                </div>
+              )}
+              {metrics.clicked && clickRate && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Clicked</span>
+                  <span className="font-semibold">
+                    {metrics.clicked.toLocaleString()} ({clickRate}%)
+                  </span>
+                </div>
+              )}
+              {metrics.converted && conversionRate && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Converted</span>
+                  <span className="font-semibold text-green-600">
+                    {metrics.converted.toLocaleString()} ({conversionRate}%)
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Wait node metrics */}
+          {data.nodeType === 'wait' && metrics.averageTimeSpent && (
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Avg Wait</span>
+              <span className="font-semibold">
+                {Math.floor(metrics.averageTimeSpent / 3600)}h
+              </span>
+            </div>
+          )}
+
+          {/* General progression metrics */}
+          {metrics.inProgress > 0 && (
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">In Progress</span>
+              <span className="font-semibold text-blue-600">
+                {metrics.inProgress.toLocaleString()}
+              </span>
+            </div>
+          )}
+
+          {/* Content reference in analytics mode */}
+          {data.contentAsset && (
+            <p className="text-xs text-muted-foreground truncate pt-1 border-t">
+              {data.contentAsset.id}
+            </p>
+          )}
         </div>
       )}
 
