@@ -1,6 +1,7 @@
 import { Handle, Position } from 'reactflow';
 import { Badge } from '@/components/ui/badge';
 import type { ContentAsset, JourneyNodeMetrics } from '@/types';
+import type { WaitConfig, DecisionConfig } from './NodeConfigDialog';
 import { Mail, Globe, Smartphone, Users, Clock, Play, GitBranch, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 interface JourneyNodeData {
@@ -9,6 +10,8 @@ interface JourneyNodeData {
   contentAsset?: ContentAsset;
   viewMode?: 'design' | 'analytics';
   metrics?: JourneyNodeMetrics;
+  waitConfig?: WaitConfig;
+  decisionConfig?: DecisionConfig;
 }
 
 interface JourneyNodeProps {
@@ -42,6 +45,26 @@ export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
   const conversionRate = metrics?.entered && metrics?.converted
     ? ((metrics.converted / metrics.entered) * 100).toFixed(1)
     : null;
+
+  // Format wait configuration
+  const formatWaitConfig = (config?: WaitConfig): string => {
+    if (!config) return 'Not configured';
+
+    if (config.type === 'time') {
+      return `${config.duration} ${config.durationUnit}`;
+    } else if (config.type === 'event') {
+      return config.event?.replace(/_/g, ' ') || 'event';
+    } else if (config.type === 'time_or_event') {
+      return `${config.duration} ${config.durationUnit} or ${config.event?.replace(/_/g, ' ')}`;
+    }
+    return 'Not configured';
+  };
+
+  // Format decision configuration
+  const formatDecisionConfig = (config?: DecisionConfig): string => {
+    if (!config) return 'Not configured';
+    return config.criterion?.replace(/_/g, ' ') || 'criterion';
+  };
 
   return (
     <div
@@ -83,6 +106,29 @@ export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
             {data.contentAsset.id}
           </Badge>
           <p className="text-xs truncate">{data.contentAsset.title}</p>
+        </div>
+      )}
+
+      {/* Wait Node Configuration */}
+      {!isAnalyticsMode && data.nodeType === 'wait' && (
+        <div className="mt-2">
+          <p className="text-xs font-medium capitalize text-muted-foreground">
+            {formatWaitConfig(data.waitConfig)}
+          </p>
+        </div>
+      )}
+
+      {/* Decision Node Configuration */}
+      {!isAnalyticsMode && data.nodeType === 'decision' && (
+        <div className="mt-2 space-y-1">
+          <p className="text-xs font-medium capitalize">
+            {formatDecisionConfig(data.decisionConfig)}
+          </p>
+          {data.decisionConfig?.paths && (
+            <div className="text-xs text-muted-foreground">
+              {data.decisionConfig.paths.length} paths
+            </div>
+          )}
         </div>
       )}
 

@@ -33,6 +33,7 @@ import { Save, Download, Upload, Plus, Play, Pause, BarChart3 } from 'lucide-rea
 import { JourneyNode } from '@/components/JourneyNode';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
+import { NodeConfigDialog, WaitConfig, DecisionConfig } from '@/components/NodeConfigDialog';
 import { mockSegments, mockCampaigns, mockContentLibrary } from '@/lib/mockData';
 import type { ContentAsset, ContentChannel, Segment, JourneyStatus, JourneyNodeMetrics } from '@/types';
 
@@ -100,6 +101,12 @@ export default function Journey() {
   // Journey lifecycle and tracking
   const [journeyStatus, setJourneyStatus] = useState<JourneyStatus>('DESIGN');
   const [viewMode, setViewMode] = useState<'design' | 'analytics'>('design');
+
+  // Node configuration dialog
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  const [configNodeType, setConfigNodeType] = useState<'wait' | 'decision'>('wait');
+  const [pendingNodeConfig, setPendingNodeConfig] = useState<typeof nodeTypeConfigs[number] | null>(null);
+  const [pendingNodePosition, setPendingNodePosition] = useState<{ x: number; y: number } | null>(null);
 
   // Mock metrics data (simulates live execution data)
   const mockNodeMetrics: Record<string, JourneyNodeMetrics> = useMemo(() => ({
@@ -245,6 +252,16 @@ export default function Journey() {
           y: event.clientY
         });
 
+        // For wait and decision nodes, show configuration dialog first
+        if (nodeConfig.nodeType === 'wait' || nodeConfig.nodeType === 'decision') {
+          setPendingNodeConfig(nodeConfig);
+          setPendingNodePosition(position);
+          setConfigNodeType(nodeConfig.nodeType);
+          setConfigDialogOpen(true);
+          return;
+        }
+
+        // For content nodes and other nodes, add immediately
         const newNode: Node = {
           id: `node-${nodeIdCounter}`,
           type: 'journey',
@@ -365,6 +382,19 @@ export default function Journey() {
 
   // Add node to canvas from palette
   const addNodeFromPalette = (nodeConfig: typeof nodeTypeConfigs[number]) => {
+    // For wait and decision nodes, show configuration dialog first
+    if (nodeConfig.nodeType === 'wait' || nodeConfig.nodeType === 'decision') {
+      setPendingNodeConfig(nodeConfig);
+      setPendingNodePosition({
+        x: 300 + Math.random() * 200,
+        y: 200 + Math.random() * 200,
+      });
+      setConfigNodeType(nodeConfig.nodeType);
+      setConfigDialogOpen(true);
+      return;
+    }
+
+    // For other nodes, add immediately
     const newNode: Node = {
       id: `node-${nodeIdCounter}`,
       type: 'journey',
@@ -380,6 +410,32 @@ export default function Journey() {
 
     setNodes((nds) => [...nds, newNode]);
     setNodeIdCounter((c) => c + 1);
+  };
+
+  // Handle node configuration save
+  const handleNodeConfigSave = (config: WaitConfig | DecisionConfig) => {
+    if (!pendingNodeConfig || !pendingNodePosition) return;
+
+    const newNode: Node = {
+      id: `node-${nodeIdCounter}`,
+      type: 'journey',
+      data: {
+        label: pendingNodeConfig.label,
+        nodeType: pendingNodeConfig.nodeType,
+        viewMode,
+        metrics: mockNodeMetrics[`node-${nodeIdCounter}`],
+        ...(configNodeType === 'wait' ? { waitConfig: config as WaitConfig } : {}),
+        ...(configNodeType === 'decision' ? { decisionConfig: config as DecisionConfig } : {}),
+      },
+      position: pendingNodePosition,
+    };
+
+    setNodes((nds) => [...nds, newNode]);
+    setNodeIdCounter((c) => c + 1);
+
+    // Clear pending state
+    setPendingNodeConfig(null);
+    setPendingNodePosition(null);
   };
 
   // Add node with content from details panel
@@ -739,6 +795,14 @@ export default function Journey() {
           </div>
         )}
       </div>
+
+      {/* Node Configuration Dialog */}
+      <NodeConfigDialog
+        open={configDialogOpen}
+        onOpenChange={setConfigDialogOpen}
+        nodeType={configNodeType}
+        onSave={handleNodeConfigSave}
+      />
     </div>
   );
 }
