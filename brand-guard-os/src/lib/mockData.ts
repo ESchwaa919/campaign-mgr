@@ -294,7 +294,7 @@ export const mockContentLibrary: ContentAsset[] = [
     linkedClaimIds: ['1'], // Eylea efficacy claim
     mlrStatus: 'APPROVED',
     mlrCaseId: 'MLR-023',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=400',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=300&fit=crop',
     tags: ['HCP', 'Oncology', 'Efficacy', 'Clinical Data'],
     audienceType: 'HCP',
     version: 2,
@@ -485,6 +485,18 @@ export const mockContentLibrary: ContentAsset[] = [
     ];
     const audienceTypes: Array<'HCP' | 'PATIENT'> = ['HCP', 'PATIENT'];
 
+    // Real Unsplash photos for medical/pharmaceutical content
+    const unsplashPhotos = [
+      '1576091160550-2173dba999ef', // Medical
+      '1551601651-2a8555f1a136', // Healthcare
+      '1584036561566-baf8f5f1b144', // Medicine
+      '1559757175-5f3fef7c8b02', // Science
+      '1551288049-bebda4e38f71', // Technology
+      '1460925895917-afdab827c52f', // Business
+      '1557804506-669a67965ba0', // Team
+      '1551076805-e1869033e561', // Office
+    ];
+
     const brandId = brands[num % 3];
     const channel = channels[num % 3];
     const assetType = assetTypes[num % 5];
@@ -501,7 +513,7 @@ export const mockContentLibrary: ContentAsset[] = [
       brandId,
       linkedClaimIds: [brandId],
       mlrStatus: num % 5 === 0 ? 'IN_REVIEW' : 'APPROVED' as 'APPROVED' | 'IN_REVIEW',
-      thumbnailUrl: `https://images.unsplash.com/photo-${1500000000000 + num * 100000}?w=400`,
+      thumbnailUrl: `https://images.unsplash.com/photo-${unsplashPhotos[num % unsplashPhotos.length]}?w=400&h=300&fit=crop`,
       tags: [
         audienceType,
         channel,
