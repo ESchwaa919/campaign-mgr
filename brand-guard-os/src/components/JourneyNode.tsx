@@ -208,14 +208,36 @@ export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
         </div>
       )}
 
-      {/* Right Handle */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="right"
-        isConnectable={isConnectable}
-        className="!w-3 !h-3 !bg-gray-400 !border-2 !border-white opacity-0 group-hover:opacity-100 transition-opacity"
-      />
+      {/* Right Handle(s) - Multiple for decision nodes */}
+      {data.nodeType === 'decision' && data.decisionConfig?.paths ? (
+        // Multiple outputs for decision paths
+        data.decisionConfig.paths.map((path, idx) => (
+          <Handle
+            key={`path-${idx}`}
+            type="source"
+            position={Position.Right}
+            id={`path-${idx}`}
+            isConnectable={isConnectable}
+            style={{
+              top: `${(100 / (data.decisionConfig!.paths.length + 1)) * (idx + 1)}%`,
+            }}
+            className="!w-3 !h-3 !bg-blue-500 !border-2 !border-white opacity-100"
+          >
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 whitespace-nowrap text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              {path.label}
+            </div>
+          </Handle>
+        ))
+      ) : (
+        // Single output for non-decision nodes
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="right"
+          isConnectable={isConnectable}
+          className="!w-3 !h-3 !bg-gray-400 !border-2 !border-white opacity-0 group-hover:opacity-100 transition-opacity"
+        />
+      )}
 
       {/* Bottom Handle */}
       <Handle

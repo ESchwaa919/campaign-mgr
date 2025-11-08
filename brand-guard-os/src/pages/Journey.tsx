@@ -140,7 +140,7 @@ export default function Journey() {
       completed: 623,
       inProgress: 89,
       dropped: 180,
-      averageTimeSpent: 86400, // 24 hours
+      averageTimeSpent: 172800, // 48 hours
     },
     'node-3': {
       nodeId: 'node-3',
@@ -153,6 +153,76 @@ export default function Journey() {
       opened: 445,
       clicked: 167,
       converted: 89,
+    },
+    'node-4': {
+      nodeId: 'node-4',
+      entered: 355,
+      completed: 245,
+      inProgress: 34,
+      dropped: 76,
+      sent: 355,
+      delivered: 350,
+      opened: 245,
+      clicked: 98,
+      converted: 56,
+    },
+    'node-5': {
+      nodeId: 'node-5',
+      entered: 268,
+      completed: 189,
+      inProgress: 28,
+      dropped: 51,
+      sent: 268,
+      delivered: 265,
+      opened: 189,
+      clicked: 76,
+      converted: 34,
+    },
+    'node-6': {
+      nodeId: 'node-6',
+      entered: 189,
+      completed: 134,
+      inProgress: 22,
+      dropped: 33,
+      averageTimeSpent: 259200, // 72 hours
+    },
+    'node-7': {
+      nodeId: 'node-7',
+      entered: 134,
+      completed: 98,
+      inProgress: 15,
+      dropped: 21,
+      sent: 134,
+      delivered: 132,
+      opened: 98,
+      clicked: 45,
+      converted: 23,
+    },
+    'node-8': {
+      nodeId: 'node-8',
+      entered: 98,
+      completed: 72,
+      inProgress: 11,
+      dropped: 15,
+    },
+    'node-9': {
+      nodeId: 'node-9',
+      entered: 72,
+      completed: 56,
+      inProgress: 8,
+      dropped: 8,
+      sent: 72,
+      delivered: 71,
+      opened: 56,
+      clicked: 28,
+      converted: 15,
+    },
+    'node-10': {
+      nodeId: 'node-10',
+      entered: 56,
+      completed: 45,
+      inProgress: 6,
+      dropped: 5,
     },
   }), []);
 
@@ -286,6 +356,40 @@ export default function Journey() {
           y: event.clientY
         });
 
+        // Check if dropping onto an existing node
+        const targetNode = nodes.find((node) => {
+          const nodeElem = document.querySelector(`[data-id="${node.id}"]`);
+          if (!nodeElem) return false;
+          const bounds = nodeElem.getBoundingClientRect();
+          return (
+            event.clientX >= bounds.left &&
+            event.clientX <= bounds.right &&
+            event.clientY >= bounds.top &&
+            event.clientY <= bounds.bottom
+          );
+        });
+
+        // If dropping content onto an existing content node, merge it
+        if (targetNode && contentAsset &&
+            (targetNode.data.nodeType === 'email' ||
+             targetNode.data.nodeType === 'web' ||
+             targetNode.data.nodeType === 'mobile')) {
+          setNodes((nds) =>
+            nds.map((n) =>
+              n.id === targetNode.id
+                ? {
+                    ...n,
+                    data: {
+                      ...n.data,
+                      contentAsset,
+                    },
+                  }
+                : n
+            )
+          );
+          return;
+        }
+
         // For wait and decision nodes, show configuration dialog first
         if (nodeConfig.nodeType === 'wait' || nodeConfig.nodeType === 'decision') {
           setPendingNodeConfig(nodeConfig);
@@ -315,7 +419,7 @@ export default function Journey() {
         console.error('Error parsing drop data:', error);
       }
     },
-    [reactFlowInstance, nodeIdCounter]
+    [reactFlowInstance, nodeIdCounter, nodes, viewMode, mockNodeMetrics]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
