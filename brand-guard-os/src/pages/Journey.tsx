@@ -292,6 +292,28 @@ export default function Journey() {
     []
   );
 
+  // Handle node click - open config for wait/decision nodes
+  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    if (journeyStatus !== 'DESIGN') return; // Only allow in design mode
+
+    if (node.data.nodeType === 'wait' || node.data.nodeType === 'decision') {
+      // Open configuration dialog with existing config
+      setConfigNodeType(node.data.nodeType);
+      setConfigDialogOpen(true);
+      // Store the node being edited
+      setPendingNodeConfig({
+        id: node.data.nodeType,
+        label: node.data.label,
+        nodeType: node.data.nodeType,
+        channel: null
+      });
+      // Store node ID for updating instead of creating
+      setPendingNodePosition({ x: 0, y: 0 }); // Not used for edit, but need to set something
+      // @ts-ignore - add editingNodeId to track which node we're editing
+      window.editingNodeId = node.id;
+    }
+  }, [journeyStatus]);
+
   // Handle dropping content onto existing nodes
   const onNodeDrop = useCallback((event: React.DragEvent, node: Node) => {
     event.preventDefault();
@@ -570,24 +592,48 @@ export default function Journey() {
 
   // Handle node configuration save
   const handleNodeConfigSave = (config: WaitConfig | DecisionConfig) => {
-    if (!pendingNodeConfig || !pendingNodePosition) return;
+    // @ts-ignore
+    const editingNodeId = window.editingNodeId;
 
-    const newNode: Node = {
-      id: `node-${nodeIdCounter}`,
-      type: 'journey',
-      data: {
-        label: pendingNodeConfig.label,
-        nodeType: pendingNodeConfig.nodeType,
-        viewMode,
-        metrics: mockNodeMetrics[`node-${nodeIdCounter}`],
-        ...(configNodeType === 'wait' ? { waitConfig: config as WaitConfig } : {}),
-        ...(configNodeType === 'decision' ? { decisionConfig: config as DecisionConfig } : {}),
-      },
-      position: pendingNodePosition,
-    };
+    if (editingNodeId) {
+      // Editing existing node
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === editingNodeId
+            ? {
+                ...n,
+                data: {
+                  ...n.data,
+                  ...(configNodeType === 'wait' ? { waitConfig: config as WaitConfig } : {}),
+                  ...(configNodeType === 'decision' ? { decisionConfig: config as DecisionConfig } : {}),
+                },
+              }
+            : n
+        )
+      );
+      // @ts-ignore
+      window.editingNodeId = undefined;
+    } else {
+      // Creating new node
+      if (!pendingNodeConfig || !pendingNodePosition) return;
 
-    setNodes((nds) => [...nds, newNode]);
-    setNodeIdCounter((c) => c + 1);
+      const newNode: Node = {
+        id: `node-${nodeIdCounter}`,
+        type: 'journey',
+        data: {
+          label: pendingNodeConfig.label,
+          nodeType: pendingNodeConfig.nodeType,
+          viewMode,
+          metrics: mockNodeMetrics[`node-${nodeIdCounter}`],
+          ...(configNodeType === 'wait' ? { waitConfig: config as WaitConfig } : {}),
+          ...(configNodeType === 'decision' ? { decisionConfig: config as DecisionConfig } : {}),
+        },
+        position: pendingNodePosition,
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      setNodeIdCounter((c) => c + 1);
+    }
 
     // Clear pending state
     setPendingNodeConfig(null);
@@ -976,6 +1022,7 @@ export default function Journey() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onNodeClick={onNodeClick}
             onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
             fitView
