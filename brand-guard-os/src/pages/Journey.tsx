@@ -265,7 +265,7 @@ export default function Journey() {
 
     // Add segment name (shortened if too long)
     if (selectedSegment) {
-      const segment = filteredSegments.find((s) => s.id === selectedSegment);
+      const segment = mockSegments.find((s) => s.id === selectedSegment);
       if (segment) {
         const segmentName = segment.name.replace('Segment:', '').trim();
         parts.push(segmentName);
@@ -284,7 +284,7 @@ export default function Journey() {
     }
 
     return parts.length > 0 ? parts.join(' ') : 'Untitled Journey';
-  }, [selectedBrand, selectedAudienceType, selectedSegment, activeChannels, campaignLabel, filteredSegments]);
+  }, [selectedBrand, selectedAudienceType, selectedSegment, activeChannels, campaignLabel]);
 
   // React Flow handlers
   const onNodesChange = useCallback(
