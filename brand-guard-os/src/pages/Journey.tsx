@@ -768,7 +768,10 @@ export default function Journey() {
               <Button
                 size="sm"
                 variant="default"
-                onClick={() => setJourneyStatus('ACTIVE')}
+                onClick={() => {
+                  setJourneyStatus('ACTIVE');
+                  setViewMode('analytics');
+                }}
               >
                 <Play className="h-4 w-4 mr-2" />
                 Activate Journey
