@@ -291,11 +291,14 @@ export type ContentAssetType =
   | 'WEB_ARTICLE'
   | 'MOBILE_PUSH'
   | 'MOBILE_IN_APP'
+  | 'SOCIAL_POST'
+  | 'SOCIAL_AD'
+  | 'SOCIAL_VIDEO'
   | 'PDF_DOCUMENT'
   | 'VIDEO'
   | 'IMAGE';
 
-export type ContentChannel = 'EMAIL' | 'WEB' | 'MOBILE' | 'PAID_MEDIA' | 'FIELD_SALES';
+export type ContentChannel = 'EMAIL' | 'WEB' | 'MOBILE' | 'SOCIAL' | 'PAID_MEDIA' | 'FIELD_SALES';
 
 export interface ContentAsset {
   id: string;

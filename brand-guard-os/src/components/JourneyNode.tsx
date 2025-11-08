@@ -2,11 +2,11 @@ import { Handle, Position } from 'reactflow';
 import { Badge } from '@/components/ui/badge';
 import type { ContentAsset, JourneyNodeMetrics } from '@/types';
 import type { WaitConfig, DecisionConfig } from './NodeConfigDialog';
-import { Mail, Globe, Smartphone, Users, Clock, Play, GitBranch, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { Mail, Globe, Smartphone, Users, Clock, Play, GitBranch, TrendingUp, CheckCircle2, Share2, Split, Target, Zap } from 'lucide-react';
 
 interface JourneyNodeData {
   label: string;
-  nodeType: 'entry' | 'email' | 'web' | 'mobile' | 'segment' | 'wait' | 'decision';
+  nodeType: 'entry' | 'email' | 'web' | 'mobile' | 'social' | 'segment' | 'wait' | 'decision' | 'abtest' | 'attribution' | 'score';
   contentAsset?: ContentAsset;
   viewMode?: 'design' | 'analytics';
   metrics?: JourneyNodeMetrics;
@@ -24,9 +24,13 @@ const nodeTypeConfig = {
   email: { icon: Mail, color: 'bg-blue-100 border-blue-300 text-blue-800' },
   web: { icon: Globe, color: 'bg-purple-100 border-purple-300 text-purple-800' },
   mobile: { icon: Smartphone, color: 'bg-cyan-100 border-cyan-300 text-cyan-800' },
+  social: { icon: Share2, color: 'bg-pink-100 border-pink-300 text-pink-800' },
   segment: { icon: Users, color: 'bg-orange-100 border-orange-300 text-orange-800' },
   wait: { icon: Clock, color: 'bg-gray-100 border-gray-300 text-gray-800' },
   decision: { icon: GitBranch, color: 'bg-yellow-100 border-yellow-300 text-yellow-800' },
+  abtest: { icon: Split, color: 'bg-indigo-100 border-indigo-300 text-indigo-800' },
+  attribution: { icon: Target, color: 'bg-emerald-100 border-emerald-300 text-emerald-800' },
+  score: { icon: Zap, color: 'bg-amber-100 border-amber-300 text-amber-800' },
 };
 
 export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
@@ -100,7 +104,7 @@ export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
       </div>
 
       {/* Design Mode Content */}
-      {!isAnalyticsMode && (data.nodeType === 'email' || data.nodeType === 'web' || data.nodeType === 'mobile') && (
+      {!isAnalyticsMode && (data.nodeType === 'email' || data.nodeType === 'web' || data.nodeType === 'mobile' || data.nodeType === 'social') && (
         <div className="mt-2 space-y-1">
           {data.contentAsset ? (
             <>

@@ -48,9 +48,13 @@ const nodeTypeConfigs = [
   { id: 'email', label: 'Email', nodeType: 'email', channel: 'EMAIL' as ContentChannel },
   { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
   { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
+  { id: 'social', label: 'Social Media', nodeType: 'social', channel: 'SOCIAL' as ContentChannel },
   { id: 'segment', label: 'Audience Filter', nodeType: 'segment', channel: null },
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
+  { id: 'abtest', label: 'A/B Test', nodeType: 'abtest', channel: null },
+  { id: 'attribution', label: 'Attribution Point', nodeType: 'attribution', channel: null },
+  { id: 'score', label: 'Update Score', nodeType: 'score', channel: null },
 ];
 
 // Palette nodes - structural + content touchpoints (can add without content, attach later)
@@ -58,8 +62,12 @@ const paletteNodes = [
   { id: 'email', label: 'Email', nodeType: 'email', channel: 'EMAIL' as ContentChannel },
   { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
   { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
+  { id: 'social', label: 'Social Media', nodeType: 'social', channel: 'SOCIAL' as ContentChannel },
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
+  { id: 'abtest', label: 'A/B Test', nodeType: 'abtest', channel: null },
+  { id: 'attribution', label: 'Attribution Point', nodeType: 'attribution', channel: null },
+  { id: 'score', label: 'Update Score', nodeType: 'score', channel: null },
 ];
 
 // Mock data
@@ -255,6 +263,15 @@ export default function Journey() {
       parts.push(selectedAudienceType);
     }
 
+    // Add segment name (shortened if too long)
+    if (selectedSegment) {
+      const segment = filteredSegments.find((s) => s.id === selectedSegment);
+      if (segment) {
+        const segmentName = segment.name.replace('Segment:', '').trim();
+        parts.push(segmentName);
+      }
+    }
+
     // Add channels (sorted alphabetically)
     if (activeChannels.length > 0) {
       const sortedChannels = [...activeChannels].sort();
@@ -267,7 +284,7 @@ export default function Journey() {
     }
 
     return parts.length > 0 ? parts.join(' ') : 'Untitled Journey';
-  }, [selectedBrand, selectedAudienceType, activeChannels, campaignLabel]);
+  }, [selectedBrand, selectedAudienceType, selectedSegment, activeChannels, campaignLabel, filteredSegments]);
 
   // React Flow handlers
   const onNodesChange = useCallback(
@@ -373,7 +390,8 @@ export default function Journey() {
         if (targetNode && contentAsset &&
             (targetNode.data.nodeType === 'email' ||
              targetNode.data.nodeType === 'web' ||
-             targetNode.data.nodeType === 'mobile')) {
+             targetNode.data.nodeType === 'mobile' ||
+             targetNode.data.nodeType === 'social')) {
           setNodes((nds) =>
             nds.map((n) =>
               n.id === targetNode.id
@@ -857,7 +875,7 @@ export default function Journey() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Node Palette */}
-        <Card className="w-48 m-4 mr-0 rounded-r-none border-r-0 flex flex-col">
+        <Card className="w-52 m-4 mr-0 rounded-r-none border-r-0 flex flex-col">
           <CardContent className="p-3 space-y-3 flex-1 overflow-auto">
             {/* Touchpoints Section */}
             <div>
@@ -894,7 +912,34 @@ export default function Journey() {
               <p className="text-xs font-medium text-muted-foreground mb-2">Flow Control</p>
               <div className="space-y-1">
                 {paletteNodes
-                  .filter((n) => n.channel === null)
+                  .filter((n) => n.channel === null && !['abtest', 'attribution', 'score'].includes(n.nodeType))
+                  .map((config) => (
+                    <div
+                      key={config.id}
+                      draggable
+                      onDragStart={(e) => handleNodeDragStart(e, config)}
+                      onClick={() => addNodeFromPalette(config)}
+                      className="cursor-move"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start h-8 text-xs pointer-events-none"
+                      >
+                        <Plus className="h-3 w-3 mr-2" />
+                        {config.label}
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Advanced Analytics Section */}
+            <div className="pt-2 border-t">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Advanced Analytics</p>
+              <div className="space-y-1">
+                {paletteNodes
+                  .filter((n) => ['abtest', 'attribution', 'score'].includes(n.nodeType))
                   .map((config) => (
                     <div
                       key={config.id}
