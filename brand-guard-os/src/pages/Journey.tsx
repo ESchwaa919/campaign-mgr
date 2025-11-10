@@ -34,6 +34,7 @@ import { JourneyNode } from '@/components/JourneyNode';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
 import { NodeConfigDialog, WaitConfig, DecisionConfig } from '@/components/NodeConfigDialog';
+import { SequenceDashboard } from '@/components/SequenceDashboard';
 import { mockSegments, mockCampaigns, mockContentLibrary } from '@/lib/mockData';
 import type { ContentAsset, ContentChannel, Segment, JourneyStatus, JourneyNodeMetrics } from '@/types';
 
@@ -124,6 +125,7 @@ export default function Journey() {
   // Journey lifecycle and tracking
   const [journeyStatus, setJourneyStatus] = useState<JourneyStatus>('DESIGN');
   const [viewMode, setViewMode] = useState<'design' | 'analytics'>('design');
+  const [showSequenceDashboard, setShowSequenceDashboard] = useState(false);
 
   // Node configuration dialog
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
@@ -815,6 +817,18 @@ export default function Journey() {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
+
+            {/* Sequence Dashboard Toggle (only show in analytics mode) */}
+            {viewMode === 'analytics' && journeyStatus !== 'DESIGN' && (
+              <Button
+                size="sm"
+                variant={showSequenceDashboard ? 'default' : 'outline'}
+                onClick={() => setShowSequenceDashboard(!showSequenceDashboard)}
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                {showSequenceDashboard ? 'Show Canvas' : 'Sequence Dashboard'}
+              </Button>
+            )}
 
             {/* Journey Actions */}
             {journeyStatus === 'DESIGN' && (
