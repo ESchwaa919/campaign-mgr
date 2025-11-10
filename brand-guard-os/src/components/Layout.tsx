@@ -24,7 +24,7 @@ const navigation = [
   { name: 'Claims', href: '/claims', icon: FileCheck },
   { name: 'MLR Cases', href: '/mlr', icon: ClipboardCheck },
   { name: 'Segments', href: '/segments', icon: Users },
-  { name: 'Campaign OS', href: '/journey', icon: Workflow },
+  { name: 'Journey Canvas', href: '/journey', icon: Workflow },
   { name: 'Email Studio', href: '/email', icon: Mail },
   { name: 'Events & Reports', href: '/events', icon: BarChart3 },
   { name: 'Admin', href: '/admin', icon: Settings },
@@ -41,8 +41,8 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-2">
             <Activity className="h-8 w-8 text-sidebar-primary" />
             <div>
-              <h1 className="text-lg font-bold text-sidebar-foreground">Marketing OS</h1>
-              <p className="text-xs text-sidebar-foreground/60">Foundation Phase 1</p>
+              <h1 className="text-lg font-bold text-sidebar-foreground">Campaign OS</h1>
+              <p className="text-xs text-sidebar-foreground/60">BrandGuard Platform</p>
             </div>
           </div>
         </div>

@@ -49,7 +49,12 @@ const nodeTypeConfigs = [
   { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
   { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
   { id: 'social', label: 'Social Media', nodeType: 'social', channel: 'SOCIAL' as ContentChannel },
-  { id: 'paid', label: 'Paid Media', nodeType: 'paid', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'paid-social', label: 'Paid Social', nodeType: 'paid-social', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'paid-search', label: 'Paid Search', nodeType: 'paid-search', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'paid-display', label: 'Paid Display', nodeType: 'paid-display', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'print', label: 'Print Media', nodeType: 'print', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'tv-radio', label: 'TV/Radio', nodeType: 'tv-radio', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'ooh', label: 'Out-of-Home', nodeType: 'ooh', channel: 'PAID_MEDIA' as ContentChannel },
   { id: 'segment', label: 'Audience Filter', nodeType: 'segment', channel: null },
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
@@ -64,7 +69,12 @@ const paletteNodes = [
   { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
   { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
   { id: 'social', label: 'Social Media', nodeType: 'social', channel: 'SOCIAL' as ContentChannel },
-  { id: 'paid', label: 'Paid Media', nodeType: 'paid', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'paid-social', label: 'Paid Social', nodeType: 'paid-social', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'paid-search', label: 'Paid Search', nodeType: 'paid-search', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'paid-display', label: 'Paid Display', nodeType: 'paid-display', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'print', label: 'Print Media', nodeType: 'print', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'tv-radio', label: 'TV/Radio', nodeType: 'tv-radio', channel: 'PAID_MEDIA' as ContentChannel },
+  { id: 'ooh', label: 'Out-of-Home', nodeType: 'ooh', channel: 'PAID_MEDIA' as ContentChannel },
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
   { id: 'abtest', label: 'A/B Test', nodeType: 'abtest', channel: null },
@@ -72,11 +82,11 @@ const paletteNodes = [
   { id: 'score', label: 'Update Score', nodeType: 'score', channel: null },
 ];
 
-// Mock data
+// Mock data - Ophthalmology brands
 const brands = [
-  { id: '1', name: 'Eylea' },
-  { id: '2', name: 'Dupixent' },
-  { id: '3', name: 'Libtayo' },
+  { id: '1', name: 'Eylea', therapeuticArea: 'Retina', indications: ['Wet AMD', 'DME', 'Diabetic Retinopathy', 'RVO'] },
+  { id: '2', name: 'Lucentis', therapeuticArea: 'Retina', indications: ['Wet AMD', 'DME', 'RVO', 'Myopic CNV'] },
+  { id: '3', name: 'Beovu', therapeuticArea: 'Retina', indications: ['Wet AMD'] },
 ];
 
 const audienceTypes = ['HCP', 'PATIENT'];
@@ -455,12 +465,8 @@ export default function Journey() {
         });
 
         // If dropping content onto an existing content node, merge it
-        if (targetNode && contentAsset &&
-            (targetNode.data.nodeType === 'email' ||
-             targetNode.data.nodeType === 'web' ||
-             targetNode.data.nodeType === 'mobile' ||
-             targetNode.data.nodeType === 'social' ||
-             targetNode.data.nodeType === 'paid')) {
+        const contentNodeTypes = ['email', 'web', 'mobile', 'social', 'paid-social', 'paid-search', 'paid-display', 'print', 'tv-radio', 'ooh'];
+        if (targetNode && contentAsset && contentNodeTypes.includes(targetNode.data.nodeType)) {
           setNodes((nds) =>
             nds.map((n) =>
               n.id === targetNode.id
@@ -776,7 +782,7 @@ export default function Journey() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold">Campaign OS</h1>
+              <h1 className="text-2xl font-bold">Journey Canvas</h1>
               <p className="text-sm text-muted-foreground">
                 {viewMode === 'design'
                   ? 'Orchestrate omnichannel campaigns with sequence-level tracking'
@@ -1001,12 +1007,39 @@ export default function Journey() {
         {/* Node Palette */}
         <Card className="w-52 m-4 mr-0 rounded-r-none border-r-0 flex flex-col">
           <CardContent className="p-3 space-y-3 flex-1 overflow-auto">
-            {/* Touchpoints Section */}
+            {/* Owned Media Section */}
             <div>
-              <p className="text-xs font-medium text-muted-foreground mb-2">Touchpoints</p>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Owned Media</p>
               <div className="space-y-1">
                 {paletteNodes
-                  .filter((n) => n.channel !== null)
+                  .filter((n) => ['email', 'web', 'mobile', 'social'].includes(n.nodeType))
+                  .map((config) => (
+                    <div
+                      key={config.id}
+                      draggable
+                      onDragStart={(e) => handleNodeDragStart(e, config)}
+                      onClick={() => addNodeFromPalette(config)}
+                      className="cursor-move"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start h-8 text-xs pointer-events-none"
+                      >
+                        <Plus className="h-3 w-3 mr-2" />
+                        {config.label}
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Paid Media Section */}
+            <div className="pt-2 border-t">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Paid Media</p>
+              <div className="space-y-1">
+                {paletteNodes
+                  .filter((n) => ['paid-social', 'paid-search', 'paid-display', 'print', 'tv-radio', 'ooh'].includes(n.nodeType))
                   .map((config) => (
                     <div
                       key={config.id}
@@ -1027,7 +1060,7 @@ export default function Journey() {
                   ))}
               </div>
               <p className="text-xs text-muted-foreground/70 mt-2">
-                Add node, then attach content
+                3rd party agency execution
               </p>
             </div>
 
