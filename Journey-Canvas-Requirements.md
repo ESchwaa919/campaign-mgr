@@ -1,17 +1,17 @@
-# Journey Canvas: Business Requirements Document
+# Campaign OS: Business Requirements Document
 
-**Version**: 1.0
+**Version**: 2.0
 **Date**: November 2024
-**Product**: BrandGuard OS - Journey Canvas Module
+**Product**: BrandGuard OS - Campaign OS Module
 **Target Users**: Pharmaceutical Marketing Operations Teams
 
 ---
 
 ## Executive Summary
 
-The **Journey Canvas** is a visual journey orchestration platform that enables pharmaceutical marketers to design, execute, and monitor multi-channel customer journeys for HCP and patient engagement. It provides real-time visibility into campaign performance while maintaining compliance with regulatory requirements.
+**Campaign OS** is an enterprise campaign orchestration platform that enables pharmaceutical marketers to design, execute, and monitor omnichannel customer journeys for HCP and patient engagement. It provides real-time visibility into campaign performance while maintaining compliance with regulatory requirements and enabling sequence-level content performance tracking.
 
-**Key Value**: Transform complex, multi-touchpoint marketing campaigns into visual workflows with built-in compliance, real-time analytics, and automated orchestration across email, web, mobile, and social channels.
+**Key Value**: Transform complex, multi-touchpoint marketing campaigns into visual workflows with built-in compliance, real-time analytics, 3rd party paid media integration, and automated orchestration across email, web, mobile, social, and paid advertising channels. Track content performance at the **sequence level** (not just campaign level) to understand what resonates at each stage of the customer journey.
 
 ---
 
@@ -38,11 +38,12 @@ The **Journey Canvas** is a visual journey orchestration platform that enables p
 
 **Key Features**:
 - **Campaign Targeting**: Brand → Audience Type (HCP/Patient) → Segment → Auto-generated campaign name
-- **Touchpoint Nodes**: Email, Web, Mobile, Social media content delivery
+- **Touchpoint Nodes**: Email, Web, Mobile, Social, **Paid Media** (3rd party agencies like CDI Media)
 - **Flow Control**: Wait conditions (time-based or event-triggered), Decision splits (engagement, demographics, behavior)
 - **Advanced Analytics**: A/B testing, attribution points, behavioral scoring
+- **Sequence Numbering**: Auto-assigned position tracking for each journey stage (enables sequence-level performance analysis)
 
-**Business Value**: Marketers design campaigns visually without IT support, accelerating time-to-market
+**Business Value**: Marketers design campaigns visually without IT support, accelerating time-to-market. **New**: Coordinate paid media execution with owned channels in unified journey.
 
 **Example Use Case**:
 ```
@@ -133,6 +134,49 @@ Journey Flow:
 - Prioritization for sales rep outreach
 
 **Business Value**: Continuous improvement via A/B testing; prove marketing ROI through attribution
+
+---
+
+### 6. 3rd Party Paid Media Integration & Sequence-Level Tracking
+**What**: Coordinate owned and paid media in unified journeys with granular performance tracking
+
+**Paid Media Execution**:
+- **Agency Coordination**: Integrate with 3rd party agencies (CDI Media, programmatic DSPs)
+- **S3 File Drops**: Auto-generate content files for agencies to pick up from S3 buckets
+- **Unified Journey**: Paid media as a touchpoint node alongside Email, Web, Mobile, Social
+- **Surround Sound**: Reach HCPs/patients where they are across owned + paid channels
+
+**Sequence-Level Tracking Architecture**:
+- **Composite Key Structure**: `{Campaign}/{Segment}/{Journey}/{Sequence}/{Content-ID}`
+- **Sequence Numbering**: Auto-assigned position in journey (e.g., Email=SEQ-1, Wait=SEQ-2, Social=SEQ-3)
+- **Content Performance by Stage**: Track which content resonates at which journey position
+- **Claravine UTM Generation**: Leverage taxonomy to build standardized UTM structures
+- **Data Cloud Integration**: Use Salesforce Data Cloud for audience building and identity resolution
+
+**Current State (Without Campaign OS)**:
+- Paid media tracked in isolation from owned channels
+- Cannot correlate email open → paid ad impression → web visit
+- "Shitty reports" from agencies with limited visibility
+- No standardization across channels
+
+**Future State (With Campaign OS)**:
+- Single composite key tracks content across all channels at sequence level
+- Understand multi-touch attribution: Email (SEQ-1) → Paid Ad (SEQ-2) → Rep Visit (SEQ-3)
+- Export standardized tracking to S3 for agencies to use
+- Optimize content by journey stage, not just by campaign
+
+**Business Value**:
+- **Better Attribution**: Multi-touch visibility across owned + paid + field channels
+- **Content Optimization**: Identify which content works at each stage (not just overall)
+- **Agency Accountability**: Standardized tracking brings paid media visibility in-house
+- **Surround Sound Execution**: Coordinate messaging across all HCP touchpoints
+
+**Example Composite Keys**:
+```
+Eylea/HCP/High-Value-Oncologists/Q4-Launch/SEQ-1/EMAIL-12345
+Eylea/HCP/High-Value-Oncologists/Q4-Launch/SEQ-2/PAID-67890
+Eylea/HCP/High-Value-Oncologists/Q4-Launch/SEQ-3/WEB-54321
+```
 
 ---
 

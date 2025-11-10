@@ -24,7 +24,7 @@ const navigation = [
   { name: 'Claims', href: '/claims', icon: FileCheck },
   { name: 'MLR Cases', href: '/mlr', icon: ClipboardCheck },
   { name: 'Segments', href: '/segments', icon: Users },
-  { name: 'Journey Canvas', href: '/journey', icon: Workflow },
+  { name: 'Campaign OS', href: '/journey', icon: Workflow },
   { name: 'Email Studio', href: '/email', icon: Mail },
   { name: 'Events & Reports', href: '/events', icon: BarChart3 },
   { name: 'Admin', href: '/admin', icon: Settings },

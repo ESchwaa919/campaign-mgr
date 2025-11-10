@@ -49,6 +49,7 @@ const nodeTypeConfigs = [
   { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
   { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
   { id: 'social', label: 'Social Media', nodeType: 'social', channel: 'SOCIAL' as ContentChannel },
+  { id: 'paid', label: 'Paid Media', nodeType: 'paid', channel: 'PAID_MEDIA' as ContentChannel },
   { id: 'segment', label: 'Audience Filter', nodeType: 'segment', channel: null },
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
@@ -63,6 +64,7 @@ const paletteNodes = [
   { id: 'web', label: 'Web Content', nodeType: 'web', channel: 'WEB' as ContentChannel },
   { id: 'mobile', label: 'Mobile Push', nodeType: 'mobile', channel: 'MOBILE' as ContentChannel },
   { id: 'social', label: 'Social Media', nodeType: 'social', channel: 'SOCIAL' as ContentChannel },
+  { id: 'paid', label: 'Paid Media', nodeType: 'paid', channel: 'PAID_MEDIA' as ContentChannel },
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
   { id: 'abtest', label: 'A/B Test', nodeType: 'abtest', channel: null },
@@ -233,6 +235,50 @@ export default function Journey() {
       dropped: 5,
     },
   }), []);
+
+  // Calculate sequence numbers for all nodes (topological order from entry point)
+  const nodeSequences = useMemo(() => {
+    const sequences = new Map<string, number>();
+    const visited = new Set<string>();
+    const queue: Array<{ nodeId: string; sequence: number }> = [];
+
+    // Find entry node
+    const entryNode = nodes.find((n) => n.data.nodeType === 'entry');
+    if (entryNode) {
+      queue.push({ nodeId: entryNode.id, sequence: 1 });
+      visited.add(entryNode.id);
+    }
+
+    // BFS traversal to assign sequences
+    while (queue.length > 0) {
+      const { nodeId, sequence } = queue.shift()!;
+      sequences.set(nodeId, sequence);
+
+      // Find all edges from this node
+      const outgoingEdges = edges.filter((e) => e.source === nodeId);
+      outgoingEdges.forEach((edge) => {
+        if (!visited.has(edge.target)) {
+          visited.add(edge.target);
+          queue.push({ nodeId: edge.target, sequence: sequence + 1 });
+        }
+      });
+    }
+
+    return sequences;
+  }, [nodes, edges]);
+
+  // Enrich nodes with sequence numbers for display
+  const enrichedNodes = useMemo(() => {
+    return nodes.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        sequence: nodeSequences.get(node.id),
+        viewMode,
+        metrics: mockNodeMetrics[node.id],
+      },
+    }));
+  }, [nodes, nodeSequences, viewMode, mockNodeMetrics]);
 
   // Track active channels from nodes on canvas
   const activeChannels = useMemo(() => {
@@ -413,7 +459,8 @@ export default function Journey() {
             (targetNode.data.nodeType === 'email' ||
              targetNode.data.nodeType === 'web' ||
              targetNode.data.nodeType === 'mobile' ||
-             targetNode.data.nodeType === 'social')) {
+             targetNode.data.nodeType === 'social' ||
+             targetNode.data.nodeType === 'paid')) {
           setNodes((nds) =>
             nds.map((n) =>
               n.id === targetNode.id
@@ -729,10 +776,10 @@ export default function Journey() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold">Journey Canvas</h1>
+              <h1 className="text-2xl font-bold">Campaign OS</h1>
               <p className="text-sm text-muted-foreground">
                 {viewMode === 'design'
-                  ? 'Select filters → Drag content → Build journey'
+                  ? 'Orchestrate omnichannel campaigns with sequence-level tracking'
                   : 'Live execution tracking and performance metrics'}
               </p>
             </div>
@@ -893,7 +940,7 @@ export default function Journey() {
                 </p>
                 <p className="text-sm font-semibold">{campaignName}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Format: Brand + Audience + Channels + Label
+                  Format: Brand + Audience + Segment + Channels + Label
                 </p>
               </div>
 
@@ -912,12 +959,40 @@ export default function Journey() {
                   </div>
                 ) : (
                   <p className="text-xs text-muted-foreground italic">
-                    Drag Email/Web/Mobile nodes to canvas to activate channels
+                    Drag Email/Web/Mobile/Social/Paid nodes to canvas to activate channels
                   </p>
                 )}
               </div>
             </div>
           </div>
+
+          {/* Tracking Architecture (shown in analytics mode) */}
+          {viewMode === 'analytics' && (
+            <div className="border rounded-lg p-3 bg-blue-50 border-blue-200">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <Badge variant="default" className="bg-blue-600">
+                    Tracking Architecture
+                  </Badge>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p className="text-xs font-medium">
+                    Composite Key Structure (for sequence-level content performance tracking)
+                  </p>
+                  <div className="flex flex-wrap gap-2 text-xs font-mono">
+                    <Badge variant="outline">{campaignName}</Badge>
+                    <span className="text-muted-foreground">/</span>
+                    <Badge variant="outline">SEQ-#</Badge>
+                    <span className="text-muted-foreground">/</span>
+                    <Badge variant="outline">CONTENT-ID</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Each content piece is tracked at its sequence position. Export to S3 for 3rd party agencies (CDI Media, etc.)
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1020,7 +1095,7 @@ export default function Journey() {
           onDragOver={onDragOver}
         >
           <ReactFlow
-            nodes={nodes}
+            nodes={enrichedNodes}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}

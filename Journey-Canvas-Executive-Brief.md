@@ -1,14 +1,14 @@
-# Journey Canvas: Executive Brief
+# Campaign OS: Executive Brief
 
-**BrandGuard OS | Journey Orchestration Module**
+**BrandGuard OS | Enterprise Campaign Orchestration Platform**
 
 ---
 
-## What Is Journey Canvas?
+## What Is Campaign OS?
 
-Journey Canvas is a **visual campaign orchestration platform** that enables pharmaceutical marketers to design, execute, and monitor multi-channel customer journeys for HCP and patient engagement—all while maintaining regulatory compliance.
+Campaign OS is an **enterprise campaign orchestration platform** that enables pharmaceutical marketers to design, execute, and monitor omnichannel customer journeys for HCP and patient engagement—all while maintaining regulatory compliance and tracking content performance at the **sequence level**.
 
-**In Simple Terms**: Turn complex marketing campaigns into visual workflows. Design a journey once, execute across email/web/mobile/social, and monitor real-time performance—all in one interface.
+**In Simple Terms**: Turn complex marketing campaigns into visual workflows. Design a journey once, execute across email/web/mobile/social/**paid media**, and monitor real-time performance—all in one interface. Track which content resonates at each stage of the customer journey (not just overall campaign performance).
 
 ---
 
@@ -35,20 +35,21 @@ Journey Canvas is a **visual campaign orchestration platform** that enables phar
 ### 1. Visual Journey Design (30 minutes vs. 4 hours)
 **Drag-and-drop canvas** with pharmaceutical-specific building blocks:
 
-**Touchpoints**: Email | Web | Mobile | Social
+**Touchpoints**: Email | Web | Mobile | Social | **Paid Media** (3rd party agencies)
 **Flow Control**: Wait (time or event) | Decision Split (engagement, demographics, behavior)
 **Analytics**: A/B Test | Attribution Point | Behavioral Scoring
+**Tracking**: Auto-assigned sequence numbers for each journey stage
 
 **Example Journey**:
 ```
-[Email: New Clinical Data]
-    → [Wait: 48 hours OR email opened]
-    → [Decision: Opened?]
-        ├─ Yes → [Social: LinkedIn Thought Leadership]
-        └─ No → [Email: Resend with Different Subject]
+[Email: New Clinical Data] (#SEQ-1)
+    → [Wait: 48 hours OR email opened] (#SEQ-2)
+    → [Decision: Opened?] (#SEQ-3)
+        ├─ Yes → [Social: LinkedIn Thought Leadership] (#SEQ-4)
+        └─ No → [Paid: Retargeting Ad via CDI Media] (#SEQ-5)
 ```
 
-**Value**: Marketers design campaigns without IT support; reduce time-to-market by 75%
+**Value**: Marketers design campaigns without IT support; reduce time-to-market by 75%. **New**: Coordinate paid media with owned channels for true "surround sound"
 
 ---
 
@@ -98,6 +99,36 @@ Journey Canvas is a **visual campaign orchestration platform** that enables phar
 - ✅ Audit trail (track what content sent to which HCPs when)
 
 **Value**: Zero regulatory violations; reduce compliance review time by 60%
+
+---
+
+### 5. Sequence-Level Tracking & 3rd Party Media Integration
+**Break free from campaign-level tracking**. Understand content performance at each journey stage.
+
+**Tracking Architecture**:
+- **Composite Key**: `Campaign/Segment/Journey/Sequence/Content-ID`
+- **Sequence Numbering**: Auto-assigned position (SEQ-1, SEQ-2, SEQ-3...)
+- **Stage-Level Insights**: Which content works at Email open? At Paid retarget? At Rep visit?
+- **Claravine UTM Generation**: Standardized taxonomy-driven tracking codes
+- **S3 Export**: Auto-generate tracking files for 3rd party agencies (CDI Media, programmatic DSPs)
+
+**Current State (Without Campaign OS)**:
+- Paid media tracked separately from owned channels
+- Cannot answer: "Did email → paid ad sequence outperform email → social?"
+- Agencies provide limited visibility ("shitty reports")
+- No standardization across channels
+
+**Future State (With Campaign OS)**:
+- Single composite key tracks content across all channels by sequence
+- Answer: "Email (SEQ-1) → Paid Ad (SEQ-2) drove 34% more conversions than Email (SEQ-1) → Social (SEQ-2)"
+- Bring agency tracking in-house with S3 file drops
+- Data Cloud builds audiences, Campaign OS orchestrates execution, tracking flows to data warehouse
+
+**Value**:
+- **Better Attribution**: Multi-touch visibility across owned + paid + field
+- **Content Optimization**: Know which content works at which stage (not just overall)
+- **Agency Accountability**: Standardized tracking replaces "black box" reporting
+- **Surround Sound Execution**: Coordinate all HCP touchpoints in unified journey
 
 ---
 
@@ -221,11 +252,13 @@ Journey Canvas is a **visual campaign orchestration platform** that enables phar
 
 ---
 
-## Why Journey Canvas vs. Competitors?
+## Why Campaign OS vs. Competitors?
 
-| Feature | Journey Canvas | Salesforce Journey Builder | Adobe Journey Optimizer |
+| Feature | Campaign OS | Salesforce Journey Builder | Adobe Journey Optimizer |
 |---------|----------------|---------------------------|------------------------|
 | Pharma compliance built-in | ✅ Yes | ❌ No (custom build) | ❌ No (custom build) |
+| Sequence-level tracking | ✅ Yes (composite keys) | ❌ Campaign-level only | ❌ Campaign-level only |
+| 3rd party paid media integration | ✅ Yes (S3 drops) | ⚠️ Limited | ⚠️ Limited |
 | Rep coordination | ✅ Yes (digital + field) | ⚠️ Limited | ⚠️ Limited |
 | Learning curve | ✅ 2 hours | ❌ 2 days training | ❌ 3 days training |
 | Real-time analytics | ✅ All nodes | ⚠️ Limited | ✅ Yes |
@@ -251,5 +284,5 @@ Journey Canvas is a **visual campaign orchestration platform** that enables phar
 
 ---
 
-**BrandGuard OS Journey Canvas**
-*Orchestrate smarter. Execute faster. Measure everything.*
+**BrandGuard OS Campaign OS**
+*Orchestrate smarter. Execute faster. Measure everything—at every sequence.*
