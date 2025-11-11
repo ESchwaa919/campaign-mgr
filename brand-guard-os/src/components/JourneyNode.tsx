@@ -2,11 +2,11 @@ import { Handle, Position } from 'reactflow';
 import { Badge } from '@/components/ui/badge';
 import type { ContentAsset, JourneyNodeMetrics } from '@/types';
 import type { WaitConfig, DecisionConfig } from './NodeConfigDialog';
-import { Mail, Globe, Smartphone, Users, Clock, Play, GitBranch, TrendingUp, CheckCircle2, Share2, Split, Target, Zap, DollarSign, Search, Monitor, Newspaper, Tv, MapPin } from 'lucide-react';
+import { Mail, Globe, Smartphone, Users, Clock, Play, GitBranch, TrendingUp, CheckCircle2, Share2, Split, Target, Zap, DollarSign, Search, Monitor, Newspaper, Tv, MapPin, UserX } from 'lucide-react';
 
 interface JourneyNodeData {
   label: string;
-  nodeType: 'entry' | 'email' | 'web' | 'mobile' | 'social' | 'paid-social' | 'paid-search' | 'paid-display' | 'print' | 'tv-radio' | 'ooh' | 'segment' | 'wait' | 'decision' | 'abtest' | 'attribution' | 'score';
+  nodeType: 'entry' | 'email' | 'web' | 'mobile' | 'social' | 'paid-social' | 'paid-search' | 'paid-display' | 'print' | 'tv-radio' | 'ooh' | 'segment' | 'wait' | 'decision' | 'abtest' | 'attribution' | 'score' | 'suppression';
   contentAsset?: ContentAsset;
   viewMode?: 'design' | 'analytics';
   metrics?: JourneyNodeMetrics;
@@ -38,6 +38,7 @@ const nodeTypeConfig = {
   abtest: { icon: Split, color: 'bg-indigo-100 border-indigo-300 text-indigo-800' },
   attribution: { icon: Target, color: 'bg-emerald-100 border-emerald-300 text-emerald-800' },
   score: { icon: Zap, color: 'bg-amber-100 border-amber-300 text-amber-800' },
+  suppression: { icon: UserX, color: 'bg-rose-100 border-rose-300 text-rose-800' },
 };
 
 export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {

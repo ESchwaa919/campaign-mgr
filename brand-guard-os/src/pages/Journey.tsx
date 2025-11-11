@@ -29,7 +29,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, Download, Upload, Plus, Play, Pause, BarChart3 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw } from 'lucide-react';
 import { JourneyNode } from '@/components/JourneyNode';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
@@ -62,6 +69,7 @@ const nodeTypeConfigs = [
   { id: 'abtest', label: 'A/B Test', nodeType: 'abtest', channel: null },
   { id: 'attribution', label: 'Attribution Point', nodeType: 'attribution', channel: null },
   { id: 'score', label: 'Update Score', nodeType: 'score', channel: null },
+  { id: 'suppression', label: 'Suppression', nodeType: 'suppression', channel: null },
 ];
 
 // Palette nodes - structural + content touchpoints (can add without content, attach later)
@@ -78,6 +86,7 @@ const paletteNodes = [
   { id: 'ooh', label: 'Out-of-Home', nodeType: 'ooh', channel: 'PAID_MEDIA' as ContentChannel },
   { id: 'wait', label: 'Wait', nodeType: 'wait', channel: null },
   { id: 'decision', label: 'Decision Split', nodeType: 'decision', channel: null },
+  { id: 'suppression', label: 'Suppression', nodeType: 'suppression', channel: null },
   { id: 'abtest', label: 'A/B Test', nodeType: 'abtest', channel: null },
   { id: 'attribution', label: 'Attribution Point', nodeType: 'attribution', channel: null },
   { id: 'score', label: 'Update Score', nodeType: 'score', channel: null },
@@ -91,6 +100,134 @@ const brands = [
 ];
 
 const audienceTypes = ['HCP', 'PATIENT'];
+
+// Pre-built Journey Templates for demonstration
+interface JourneyTemplate {
+  id: string;
+  name: string;
+  description: string;
+  brand: string;
+  audienceType: 'HCP' | 'PATIENT';
+  segment: string;
+  label: string;
+  nodes: Node[];
+  edges: Edge[];
+}
+
+const savedJourneyTemplates: JourneyTemplate[] = [
+  // Template 1: Wet AMD New Product Launch
+  {
+    id: 'template-1',
+    name: 'Wet AMD New Product Launch',
+    description: 'Multi-channel campaign launching Eylea to high-volume retina specialists with HAWK study data',
+    brand: '1', // Eylea
+    audienceType: 'HCP',
+    segment: '1', // Retina Specialists - High Volume
+    label: 'Eylea HCP High-Volume Retina Specialists EMAIL PAID_SOCIAL PRINT Q4 AMD Launch',
+    nodes: [
+      { id: 'node-1', type: 'journey', position: { x: 50, y: 250 }, data: { label: 'Journey Start', nodeType: 'entry' } },
+      { id: 'node-2', type: 'journey', position: { x: 300, y: 250 }, data: { label: 'HAWK Study Email', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0001') } },
+      { id: 'node-3', type: 'journey', position: { x: 550, y: 250 }, data: { label: 'Wait 48h', nodeType: 'wait', waitConfig: { type: 'time', duration: 48, durationUnit: 'hours' } } },
+      { id: 'node-4', type: 'journey', position: { x: 800, y: 250 }, data: { label: 'Email Opened?', nodeType: 'decision', decisionConfig: { criterion: 'email_opened', paths: [{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }] } } },
+      { id: 'node-5a', type: 'journey', position: { x: 1050, y: 100 }, data: { label: 'LinkedIn Thought Leadership', nodeType: 'paid-social', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0011') } },
+      { id: 'node-5b', type: 'journey', position: { x: 1050, y: 400 }, data: { label: 'Email Resend', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0001') } },
+      { id: 'node-6', type: 'journey', position: { x: 1300, y: 250 }, data: { label: 'Retina Times Ad', nodeType: 'print', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0040') } },
+      { id: 'node-7', type: 'journey', position: { x: 1550, y: 250 }, data: { label: 'Rep Meeting', nodeType: 'attribution' } },
+    ],
+    edges: [
+      { id: 'e1-2', source: 'node-1', target: 'node-2', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e2-3', source: 'node-2', target: 'node-3', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e3-4', source: 'node-3', target: 'node-4', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e4-5a', source: 'node-4', sourceHandle: 'path-0', target: 'node-5a', type: 'default', markerEnd: { type: MarkerType.ArrowClosed }, label: 'Yes' },
+      { id: 'e4-5b', source: 'node-4', sourceHandle: 'path-1', target: 'node-5b', type: 'default', markerEnd: { type: MarkerType.ArrowClosed }, label: 'No' },
+      { id: 'e5a-6', source: 'node-5a', target: 'node-6', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e5b-6', source: 'node-5b', target: 'node-6', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e6-7', source: 'node-6', target: 'node-7', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+    ],
+  },
+
+  // Template 2: Patient Adherence Journey
+  {
+    id: 'template-2',
+    name: 'Patient Treatment Adherence',
+    description: 'Multi-touchpoint campaign to improve injection appointment adherence for DME patients',
+    brand: '1', // Eylea
+    audienceType: 'PATIENT',
+    segment: '8', // DME Patients - Active Treatment
+    label: 'Eylea PATIENT DME Patients EMAIL MOBILE WEB Q3 Adherence',
+    nodes: [
+      { id: 'node-1', type: 'journey', position: { x: 50, y: 250 }, data: { label: 'Journey Start', nodeType: 'entry' } },
+      { id: 'node-2', type: 'journey', position: { x: 300, y: 250 }, data: { label: 'Welcome Email', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0500') } },
+      { id: 'node-3', type: 'journey', position: { x: 550, y: 250 }, data: { label: 'Wait 3 Days', nodeType: 'wait', waitConfig: { type: 'time', duration: 3, durationUnit: 'days' } } },
+      { id: 'node-4', type: 'journey', position: { x: 800, y: 250 }, data: { label: 'Patient Portal Access', nodeType: 'web', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0510') } },
+      { id: 'node-5', type: 'journey', position: { x: 1050, y: 250 }, data: { label: 'Wait 1 Week', nodeType: 'wait', waitConfig: { type: 'time', duration: 7, durationUnit: 'days' } } },
+      { id: 'node-6', type: 'journey', position: { x: 1300, y: 250 }, data: { label: 'Appointment Reminder', nodeType: 'mobile', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0520') } },
+      { id: 'node-7', type: 'journey', position: { x: 1550, y: 250 }, data: { label: 'Injection Completed', nodeType: 'attribution' } },
+    ],
+    edges: [
+      { id: 'e1-2', source: 'node-1', target: 'node-2', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e2-3', source: 'node-2', target: 'node-3', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e3-4', source: 'node-3', target: 'node-4', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e4-5', source: 'node-4', target: 'node-5', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e5-6', source: 'node-5', target: 'node-6', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e6-7', source: 'node-6', target: 'node-7', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+    ],
+  },
+
+  // Template 3: Patient DTC Awareness Campaign
+  {
+    id: 'template-3',
+    name: 'Patient DTC AMD Awareness',
+    description: 'Direct-to-consumer campaign for newly diagnosed wet AMD patients with paid media',
+    brand: '1', // Eylea
+    audienceType: 'PATIENT',
+    segment: '7', // Wet AMD Patients - Newly Diagnosed
+    label: 'Eylea PATIENT Newly Diagnosed EMAIL PAID_DISPLAY WEB Q4 DTC Awareness',
+    nodes: [
+      { id: 'node-1', type: 'journey', position: { x: 50, y: 250 }, data: { label: 'Journey Start', nodeType: 'entry' } },
+      { id: 'node-2', type: 'journey', position: { x: 300, y: 250 }, data: { label: 'Suppression Filter', nodeType: 'suppression' } },
+      { id: 'node-3', type: 'journey', position: { x: 550, y: 250 }, data: { label: 'Educational Email', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0500') } },
+      { id: 'node-4', type: 'journey', position: { x: 800, y: 250 }, data: { label: 'Display Retargeting', nodeType: 'paid-display', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0561') } },
+      { id: 'node-5', type: 'journey', position: { x: 1050, y: 250 }, data: { label: 'AMD Education Article', nodeType: 'web', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0511') } },
+      { id: 'node-6', type: 'journey', position: { x: 1300, y: 250 }, data: { label: 'Financial Assistance', nodeType: 'web', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0512') } },
+    ],
+    edges: [
+      { id: 'e1-2', source: 'node-1', target: 'node-2', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e2-3', source: 'node-2', target: 'node-3', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e3-4', source: 'node-3', target: 'node-4', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e4-5', source: 'node-4', target: 'node-5', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e5-6', source: 'node-5', target: 'node-6', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+    ],
+  },
+
+  // Template 4: HCP CME & Education
+  {
+    id: 'template-4',
+    name: 'HCP Continuing Education',
+    description: 'Multi-channel educational campaign with CME module for comprehensive ophthalmologists',
+    brand: '2', // Lucentis
+    audienceType: 'HCP',
+    segment: '4', // Comprehensive Ophthalmologists
+    label: 'Lucentis HCP Comprehensive Ophthalmologists EMAIL WEB PAID_SOCIAL Q2 CME Education',
+    nodes: [
+      { id: 'node-1', type: 'journey', position: { x: 50, y: 250 }, data: { label: 'Journey Start', nodeType: 'entry' } },
+      { id: 'node-2', type: 'journey', position: { x: 300, y: 250 }, data: { label: 'CME Invitation Email', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0100') } },
+      { id: 'node-3', type: 'journey', position: { x: 550, y: 250 }, data: { label: 'Opened?', nodeType: 'decision', decisionConfig: { criterion: 'email_opened', paths: [{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }] } } },
+      { id: 'node-4a', type: 'journey', position: { x: 800, y: 100 }, data: { label: 'CME Module', nodeType: 'web', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0531') } },
+      { id: 'node-5a', type: 'journey', position: { x: 1050, y: 100 }, data: { label: 'Completed CME', nodeType: 'attribution' } },
+      { id: 'node-4b', type: 'journey', position: { x: 800, y: 400 }, data: { label: 'LinkedIn Retargeting', nodeType: 'paid-social', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0110') } },
+      { id: 'node-5b', type: 'journey', position: { x: 1050, y: 400 }, data: { label: 'Resend Email', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0101') } },
+    ],
+    edges: [
+      { id: 'e1-2', source: 'node-1', target: 'node-2', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e2-3', source: 'node-2', target: 'node-3', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e3-4a', source: 'node-3', sourceHandle: 'path-0', target: 'node-4a', type: 'default', markerEnd: { type: MarkerType.ArrowClosed }, label: 'Yes' },
+      { id: 'e4a-5a', source: 'node-4a', target: 'node-5a', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e3-4b', source: 'node-3', sourceHandle: 'path-1', target: 'node-4b', type: 'default', markerEnd: { type: MarkerType.ArrowClosed }, label: 'No' },
+      { id: 'e4b-5b', source: 'node-4b', target: 'node-5b', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+    ],
+  },
+];
 
 // Initial node for canvas
 const initialNodes: Node[] = [
@@ -131,7 +268,14 @@ export default function Journey() {
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [configNodeType, setConfigNodeType] = useState<'wait' | 'decision'>('wait');
   const [pendingNodeConfig, setPendingNodeConfig] = useState<typeof nodeTypeConfigs[number] | null>(null);
+
+  // Journey template dialog
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [pendingNodePosition, setPendingNodePosition] = useState<{ x: number; y: number } | null>(null);
+
+  // Node type change dialog
+  const [changeTypeDialogOpen, setChangeTypeDialogOpen] = useState(false);
+  const [nodeToChange, setNodeToChange] = useState<Node | null>(null);
 
   // Mock metrics data (simulates live execution data)
   const mockNodeMetrics: Record<string, JourneyNodeMetrics> = useMemo(() => ({
@@ -727,16 +871,38 @@ export default function Journey() {
 
   // Handle content drag start
   const handleContentDragStart = (content: ContentAsset) => {
-    const channelToNodeType: Record<string, string> = {
-      EMAIL: 'email',
-      WEB: 'web',
-      MOBILE: 'mobile',
-    };
+    let nodeType = 'email'; // default fallback
 
-    const nodeType = channelToNodeType[content.channel] || 'email';
-    const nodeConfig = nodeTypeConfigs.find((n) => n.nodeType === nodeType)!;
+    // Map content channel and asset type to node type
+    if (content.channel === 'EMAIL') {
+      nodeType = 'email';
+    } else if (content.channel === 'WEB') {
+      nodeType = 'web';
+    } else if (content.channel === 'MOBILE') {
+      nodeType = 'mobile';
+    } else if (content.channel === 'SOCIAL') {
+      nodeType = 'social';
+    } else if (content.channel === 'PAID_MEDIA') {
+      // For paid media, map based on asset type
+      if (content.assetType === 'PAID_SOCIAL_AD') {
+        nodeType = 'paid-social';
+      } else if (content.assetType === 'PAID_SEARCH_AD') {
+        nodeType = 'paid-search';
+      } else if (content.assetType === 'PAID_DISPLAY_AD') {
+        nodeType = 'paid-display';
+      } else if (content.assetType === 'PRINT_AD' || content.assetType === 'PRINT_JOURNAL_AD') {
+        nodeType = 'print';
+      } else if (content.assetType === 'TV_SPOT' || content.assetType === 'RADIO_SPOT') {
+        nodeType = 'tv-radio';
+      } else if (content.assetType === 'OOH_CREATIVE') {
+        nodeType = 'ooh';
+      }
+    }
 
-    return { nodeConfig, contentAsset: content };
+    const nodeConfig = nodeTypeConfigs.find((n) => n.nodeType === nodeType);
+
+    // If we can't find the config, fall back to email
+    return { nodeConfig: nodeConfig || nodeTypeConfigs.find((n) => n.nodeType === 'email')!, contentAsset: content };
   };
 
   // Handle node palette drag start
@@ -765,16 +931,72 @@ export default function Journey() {
   };
 
   const loadJourney = () => {
-    const saved = localStorage.getItem('savedJourney');
-    if (saved) {
-      const journey = JSON.parse(saved);
-      setSelectedBrand(journey.brand || '');
-      setSelectedAudienceType(journey.audienceType || '');
-      setSelectedSegment(journey.segment || '');
-      setCampaignLabel(journey.label || '');
-      setNodes(journey.nodes);
-      setEdges(journey.edges);
+    // Show template selection dialog
+    setTemplateDialogOpen(true);
+  };
+
+  const loadJourneyTemplate = (template: JourneyTemplate) => {
+    // Load the selected template
+    setSelectedBrand(template.brand);
+    setSelectedAudienceType(template.audienceType);
+    setSelectedSegment(template.segment);
+    setCampaignLabel(template.label);
+    setNodes(template.nodes);
+    setEdges(template.edges);
+    setTemplateDialogOpen(false);
+  };
+
+  const clearCanvas = () => {
+    // Reset everything to initial state
+    setNodes(initialNodes);
+    setEdges([]);
+    setSelectedBrand('');
+    setSelectedAudienceType('');
+    setSelectedSegment('');
+    setCampaignLabel('');
+    setJourneyStatus('DESIGN');
+    setViewMode('design');
+  };
+
+  const handleNodeDoubleClick = useCallback((_event: React.MouseEvent, node: Node) => {
+    // Only allow changing type for non-entry nodes
+    if (node.data.nodeType !== 'entry') {
+      setNodeToChange(node);
+      setChangeTypeDialogOpen(true);
     }
+  }, []);
+
+  const changeNodeType = (newNodeType: string) => {
+    if (!nodeToChange) return;
+
+    setNodes((nds) =>
+      nds.map((n) => {
+        if (n.id === nodeToChange.id) {
+          // Keep the content if it's compatible, otherwise clear it
+          const currentContent = n.data.contentAsset;
+          let newContent = currentContent;
+
+          // Clear content if changing to/from flow control nodes
+          const flowControlTypes = ['wait', 'decision', 'abtest', 'attribution', 'score', 'suppression'];
+          if (flowControlTypes.includes(newNodeType) || flowControlTypes.includes(n.data.nodeType)) {
+            newContent = undefined;
+          }
+
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              nodeType: newNodeType,
+              contentAsset: newContent,
+            },
+          };
+        }
+        return n;
+      })
+    );
+
+    setChangeTypeDialogOpen(false);
+    setNodeToChange(null);
   };
 
   return (
@@ -858,6 +1080,10 @@ export default function Journey() {
             <Button variant="outline" size="sm" onClick={loadJourney}>
               <Upload className="h-4 w-4 mr-2" />
               Load
+            </Button>
+            <Button variant="outline" size="sm" onClick={clearCanvas}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              New Journey
             </Button>
             <Button variant="outline" size="sm" onClick={saveJourney}>
               <Save className="h-4 w-4 mr-2" />
@@ -1148,6 +1374,7 @@ export default function Journey() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onNodeDoubleClick={handleNodeDoubleClick}
             onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
             fitView
@@ -1190,6 +1417,125 @@ export default function Journey() {
         nodeType={configNodeType}
         onSave={handleNodeConfigSave}
       />
+
+      {/* Journey Template Selection Dialog */}
+      <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Load Journey Template</DialogTitle>
+            <DialogDescription>
+              Select a pre-built ophthalmology campaign journey to get started quickly.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {savedJourneyTemplates.map((template) => (
+              <Card
+                key={template.id}
+                className="cursor-pointer hover:border-primary transition-colors"
+                onClick={() => loadJourneyTemplate(template)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg">{template.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{template.description}</p>
+                      <div className="flex gap-2 mt-3">
+                        <Badge variant="outline">{brands.find(b => b.id === template.brand)?.name}</Badge>
+                        <Badge variant="secondary">{template.audienceType}</Badge>
+                        <Badge>{mockSegments.find(s => s.id === template.segment)?.name}</Badge>
+                        <Badge variant="outline">{template.nodes.length} nodes</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Node Type Dialog */}
+      <Dialog open={changeTypeDialogOpen} onOpenChange={setChangeTypeDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Change Node Type</DialogTitle>
+            <DialogDescription>
+              Select a new node type for "{nodeToChange?.data.label}". Double-click any node to change its type.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-sm font-medium mb-2">Owned Media</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {['email', 'web', 'mobile', 'social'].map((type) => (
+                    <Button
+                      key={type}
+                      variant={nodeToChange?.data.nodeType === type ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => changeNodeType(type)}
+                      className="justify-start"
+                    >
+                      {paletteNodes.find(n => n.nodeType === type)?.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium mb-2">Paid Media</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {['paid-social', 'paid-search', 'paid-display', 'print', 'tv-radio', 'ooh'].map((type) => (
+                    <Button
+                      key={type}
+                      variant={nodeToChange?.data.nodeType === type ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => changeNodeType(type)}
+                      className="justify-start"
+                    >
+                      {paletteNodes.find(n => n.nodeType === type)?.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium mb-2">Flow Control</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {['wait', 'decision', 'suppression'].map((type) => (
+                    <Button
+                      key={type}
+                      variant={nodeToChange?.data.nodeType === type ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => changeNodeType(type)}
+                      className="justify-start"
+                    >
+                      {paletteNodes.find(n => n.nodeType === type)?.label || type}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium mb-2">Advanced</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {['abtest', 'attribution', 'score'].map((type) => (
+                    <Button
+                      key={type}
+                      variant={nodeToChange?.data.nodeType === type ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => changeNodeType(type)}
+                      className="justify-start"
+                    >
+                      {paletteNodes.find(n => n.nodeType === type)?.label || type}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
