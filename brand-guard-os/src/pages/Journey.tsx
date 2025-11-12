@@ -134,27 +134,48 @@ interface JourneyTemplate {
 }
 
 const savedJourneyTemplates: JourneyTemplate[] = [
-  // Template 1: Wet AMD New Product Launch
+  // Template 1: Wet AMD New Product Launch (WITH MICROSEGMENTS)
   {
     id: 'template-1',
     name: 'Wet AMD New Product Launch',
-    description: 'Multi-channel campaign launching Eylea to high-volume retina specialists with HAWK study data',
+    description: 'Multi-channel campaign launching Eylea to high-volume retina specialists with HAWK study data - includes 4 microsegments',
     brand: '1', // Eylea
     audienceType: 'HCP',
     segment: '1', // Retina Specialists - High Volume
     label: 'Eylea HCP High-Volume Retina Specialists EMAIL PAID_SOCIAL PRINT Q4 AMD Launch',
     nodes: [
-      { id: 'node-1', type: 'journey', position: { x: 50, y: 250 }, data: { label: 'Journey Start', nodeType: 'entry' } },
-      { id: 'node-2', type: 'journey', position: { x: 300, y: 250 }, data: { label: 'HAWK Study Email', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0001') } },
-      { id: 'node-3', type: 'journey', position: { x: 550, y: 250 }, data: { label: 'Wait 48h', nodeType: 'wait', waitConfig: { type: 'time', duration: 48, durationUnit: 'hours' } } },
-      { id: 'node-4', type: 'journey', position: { x: 800, y: 250 }, data: { label: 'Email Opened?', nodeType: 'decision', decisionConfig: { criterion: 'email_opened', paths: [{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }] } } },
-      { id: 'node-5a', type: 'journey', position: { x: 1050, y: 100 }, data: { label: 'LinkedIn Thought Leadership', nodeType: 'paid-social', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0011') } },
-      { id: 'node-5b', type: 'journey', position: { x: 1050, y: 400 }, data: { label: 'Email Resend', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0001') } },
-      { id: 'node-6', type: 'journey', position: { x: 1300, y: 250 }, data: { label: 'Retina Times Ad', nodeType: 'print', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0040') } },
-      { id: 'node-7', type: 'journey', position: { x: 1550, y: 250 }, data: { label: 'Rep Meeting', nodeType: 'attribution' } },
+      // Entry node
+      { id: 'node-1', type: 'journey', position: { x: 50, y: 350 }, data: { label: 'Journey Start', nodeType: 'entry' } },
+
+      // Microsegments (left-to-right layout, vertically stacked)
+      { id: 'ms-1', type: 'microsegment', position: { x: 400, y: 80 }, data: { label: 'High Engagers', microsegment: mockMicrosegments[0] } },
+      { id: 'ms-2', type: 'microsegment', position: { x: 400, y: 260 }, data: { label: 'Medium Engagers', microsegment: mockMicrosegments[1] } },
+      { id: 'ms-3', type: 'microsegment', position: { x: 400, y: 440 }, data: { label: 'Low Engagers', microsegment: mockMicrosegments[2] } },
+      { id: 'ms-4', type: 'microsegment', position: { x: 400, y: 620 }, data: { label: 'New to Brand', microsegment: mockMicrosegments[3] } },
+
+      // Journey flow nodes (continues to the right)
+      { id: 'node-2', type: 'journey', position: { x: 750, y: 350 }, data: { label: 'HAWK Study Email', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0001') } },
+      { id: 'node-3', type: 'journey', position: { x: 1000, y: 350 }, data: { label: 'Wait 48h', nodeType: 'wait', waitConfig: { type: 'time', duration: 48, durationUnit: 'hours' } } },
+      { id: 'node-4', type: 'journey', position: { x: 1250, y: 350 }, data: { label: 'Email Opened?', nodeType: 'decision', decisionConfig: { criterion: 'email_opened', paths: [{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }] } } },
+      { id: 'node-5a', type: 'journey', position: { x: 1500, y: 200 }, data: { label: 'LinkedIn Ad', nodeType: 'paid-social', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0011') } },
+      { id: 'node-5b', type: 'journey', position: { x: 1500, y: 500 }, data: { label: 'Email Resend', nodeType: 'email', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0001') } },
+      { id: 'node-6', type: 'journey', position: { x: 1750, y: 350 }, data: { label: 'Retina Times Ad', nodeType: 'print', contentAsset: mockContentLibrary.find(c => c.id === 'CNT-2024-0040') } },
+      { id: 'node-7', type: 'journey', position: { x: 2000, y: 350 }, data: { label: 'Attribution', nodeType: 'attribution' } },
     ],
     edges: [
-      { id: 'e1-2', source: 'node-1', target: 'node-2', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      // Entry to Microsegments
+      { id: 'e1-ms1', source: 'node-1', sourceHandle: 'right', target: 'ms-1', targetHandle: 'left', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e1-ms2', source: 'node-1', sourceHandle: 'right', target: 'ms-2', targetHandle: 'left', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e1-ms3', source: 'node-1', sourceHandle: 'right', target: 'ms-3', targetHandle: 'left', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'e1-ms4', source: 'node-1', sourceHandle: 'right', target: 'ms-4', targetHandle: 'left', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+
+      // Microsegments to Email (converging flow)
+      { id: 'ems1-2', source: 'ms-1', sourceHandle: 'right', target: 'node-2', targetHandle: 'left', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'ems2-2', source: 'ms-2', sourceHandle: 'right', target: 'node-2', targetHandle: 'left', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'ems3-2', source: 'ms-3', sourceHandle: 'right', target: 'node-2', targetHandle: 'left', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+      { id: 'ems4-2', source: 'ms-4', sourceHandle: 'right', target: 'node-2', targetHandle: 'left', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
+
+      // Journey flow
       { id: 'e2-3', source: 'node-2', target: 'node-3', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
       { id: 'e3-4', source: 'node-3', target: 'node-4', type: 'default', markerEnd: { type: MarkerType.ArrowClosed } },
       { id: 'e4-5a', source: 'node-4', sourceHandle: 'path-0', target: 'node-5a', type: 'default', markerEnd: { type: MarkerType.ArrowClosed }, label: 'Yes' },
