@@ -36,8 +36,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw, Trash2 } from 'lucide-react';
+import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw, Trash2, Sparkles } from 'lucide-react';
 import { JourneyNode } from '@/components/JourneyNode';
+import { MicrosegmentNode } from '@/components/MicrosegmentNode';
+import { MicrosegmentGenerator } from '@/components/MicrosegmentGenerator';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
 import { NodeConfigDialog, type NodeConfig } from '@/components/NodeConfigDialog';
@@ -47,6 +49,7 @@ import type {
   ContentAsset,
   ContentChannel,
   Segment,
+  Microsegment,
   JourneyStatus,
   JourneyNodeMetrics,
   WaitConfig,
@@ -60,6 +63,7 @@ import type {
 // Node types for React Flow
 const nodeTypes: NodeTypes = {
   journey: JourneyNode,
+  microsegment: MicrosegmentNode,
 };
 
 // Node type configurations (full set for content library)
@@ -267,6 +271,10 @@ export default function Journey() {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedAudienceType, setSelectedAudienceType] = useState('');
   const [selectedSegment, setSelectedSegment] = useState('');
+
+  // Microsegments
+  const [microsegments, setMicrosegments] = useState<Microsegment[]>([]);
+  const [microsegmentDialogOpen, setMicrosegmentDialogOpen] = useState(false);
 
   // Content state
   const [selectedContent, setSelectedContent] = useState<ContentAsset | null>(null);
@@ -943,6 +951,56 @@ export default function Journey() {
     );
   };
 
+  // Handle microsegment generation confirmation
+  const handleMicrosegmentConfirm = (confirmedMicrosegments: Microsegment[]) => {
+    setMicrosegments(confirmedMicrosegments);
+
+    // Create microsegment nodes connected to Entry node
+    const entryNode = nodes.find((n) => n.id === '1'); // Entry node always has id '1'
+    if (!entryNode) return;
+
+    const newNodes: Node[] = [];
+    const newEdges: Edge[] = [];
+
+    // Arrange microsegment nodes horizontally below the entry node
+    const startX = entryNode.position.x - (confirmedMicrosegments.length - 1) * 150;
+    const startY = entryNode.position.y + 150;
+
+    confirmedMicrosegments.forEach((microsegment, index) => {
+      const nodeId = `microseg-${Date.now()}-${index}`;
+
+      // Create microsegment node
+      newNodes.push({
+        id: nodeId,
+        type: 'microsegment',
+        position: {
+          x: startX + index * 300,
+          y: startY,
+        },
+        data: {
+          label: microsegment.name,
+          microsegment,
+          viewMode,
+        },
+      });
+
+      // Create edge from Entry to this microsegment
+      newEdges.push({
+        id: `edge-entry-${nodeId}`,
+        source: '1',
+        target: nodeId,
+        type: 'default',
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+        },
+      });
+    });
+
+    // Add new nodes and edges to the canvas
+    setNodes((nds) => [...nds, ...newNodes]);
+    setEdges((eds) => [...eds, ...newEdges]);
+  };
+
   // Load saved journeys from localStorage on mount
   useEffect(() => {
     const loadSavedJourneys = () => {
@@ -1251,6 +1309,36 @@ export default function Journey() {
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* Generate Microsegments Button */}
+              {selectedSegment && microsegments.length === 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-2"
+                  onClick={() => setMicrosegmentDialogOpen(true)}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate Microsegments
+                </Button>
+              )}
+
+              {/* Show microsegments badge if generated */}
+              {microsegments.length > 0 && (
+                <div className="mt-2 flex items-center gap-2">
+                  <Badge variant="secondary" className="text-xs">
+                    {microsegments.length} Microsegments
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs"
+                    onClick={() => setMicrosegmentDialogOpen(true)}
+                  >
+                    Edit
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Optional Campaign Label */}
@@ -1520,6 +1608,16 @@ export default function Journey() {
         nodeType={configNodeType}
         onSave={handleNodeConfigSave}
       />
+
+      {/* Microsegment Generator Dialog */}
+      {selectedSegment && (
+        <MicrosegmentGenerator
+          open={microsegmentDialogOpen}
+          onOpenChange={setMicrosegmentDialogOpen}
+          segment={mockSegments.find((s) => s.id === selectedSegment)!}
+          onConfirm={handleMicrosegmentConfirm}
+        />
+      )}
 
       {/* Edit Node Label Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>

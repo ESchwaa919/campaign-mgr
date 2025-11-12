@@ -392,7 +392,7 @@ export function NodeConfigDialog({ open, onOpenChange, nodeType, onSave }: NodeC
                 </div>
               )}
             </>
-          ) : (
+          ) : nodeType === 'decision' ? (
             <>
               {/* Decision Type */}
               <div className="space-y-2">
