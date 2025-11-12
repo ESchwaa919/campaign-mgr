@@ -3,11 +3,9 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-// Force rebuild - DialogFooter is properly exported from @/components/ui/dialog
+import { DialogFooter, DialogHeader } from '@/components/ui/dialog-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
