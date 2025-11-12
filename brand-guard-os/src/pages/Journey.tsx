@@ -45,7 +45,7 @@ import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
 import { NodeConfigDialog, type NodeConfig } from '@/components/NodeConfigDialog';
 import { SequenceDashboard } from '@/components/SequenceDashboard';
-import { mockSegments, mockCampaigns, mockContentLibrary, mockContentResonance, mockBrands } from '@/lib/mockData';
+import { mockSegments, mockCampaigns, mockContentLibrary, mockContentResonance, mockBrands, mockMicrosegments } from '@/lib/mockData';
 import { mintIDsAndActivate } from '@/lib/idRegistry';
 import type {
   ContentAsset,
