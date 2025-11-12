@@ -1,7 +1,15 @@
 import { Handle, Position } from 'reactflow';
 import { Badge } from '@/components/ui/badge';
-import type { ContentAsset, JourneyNodeMetrics } from '@/types';
-import type { WaitConfig, DecisionConfig } from './NodeConfigDialog';
+import type {
+  ContentAsset,
+  JourneyNodeMetrics,
+  WaitConfig,
+  DecisionConfig,
+  SuppressionConfig,
+  ABTestConfig,
+  AttributionConfig,
+  ScoreConfig,
+} from '@/types';
 import { Mail, Globe, Smartphone, Users, Clock, Play, GitBranch, TrendingUp, CheckCircle2, Share2, Split, Target, Zap, DollarSign, Search, Monitor, Newspaper, Tv, MapPin, UserX } from 'lucide-react';
 
 interface JourneyNodeData {
@@ -12,6 +20,10 @@ interface JourneyNodeData {
   metrics?: JourneyNodeMetrics;
   waitConfig?: WaitConfig;
   decisionConfig?: DecisionConfig;
+  suppressionConfig?: SuppressionConfig;
+  abtestConfig?: ABTestConfig;
+  attributionConfig?: AttributionConfig;
+  scoreConfig?: ScoreConfig;
   sequence?: number;
 }
 
@@ -76,6 +88,35 @@ export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
   const formatDecisionConfig = (config?: DecisionConfig): string => {
     if (!config) return 'Not configured';
     return config.criterion?.replace(/_/g, ' ') || 'criterion';
+  };
+
+  // Format suppression configuration
+  const formatSuppressionConfig = (config?: SuppressionConfig): string => {
+    if (!config) return 'Not configured';
+    const listCount = config.lists.length;
+    const logic = config.logic;
+    return `${listCount} list${listCount !== 1 ? 's' : ''} (${logic})`;
+  };
+
+  // Format A/B test configuration
+  const formatABTestConfig = (config?: ABTestConfig): string => {
+    if (!config) return 'Not configured';
+    return config.testName || `${config.variants.length} variants`;
+  };
+
+  // Format attribution configuration
+  const formatAttributionConfig = (config?: AttributionConfig): string => {
+    if (!config) return 'Not configured';
+    const eventLabel = config.eventName || config.eventType.replace(/_/g, ' ');
+    return `${eventLabel} ($${config.conversionValue})`;
+  };
+
+  // Format score configuration
+  const formatScoreConfig = (config?: ScoreConfig): string => {
+    if (!config) return 'Not configured';
+    const scoreLabel = config.scoreType.replace(/_/g, ' ');
+    const logicSymbol = config.updateLogic === 'add' ? '+' : config.updateLogic === 'subtract' ? '-' : config.updateLogic === 'multiply' ? '×' : '=';
+    return `${scoreLabel} ${logicSymbol}${config.pointValue}`;
   };
 
   return (
@@ -152,6 +193,62 @@ export function JourneyNode({ data, isConnectable }: JourneyNodeProps) {
           {data.decisionConfig?.paths && (
             <div className="text-xs text-muted-foreground">
               {data.decisionConfig.paths.length} paths
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Suppression Node Configuration */}
+      {!isAnalyticsMode && data.nodeType === 'suppression' && (
+        <div className="mt-2 space-y-1">
+          <p className="text-xs font-medium">
+            {formatSuppressionConfig(data.suppressionConfig)}
+          </p>
+          {data.suppressionConfig && (
+            <div className="text-xs text-muted-foreground">
+              Action: {data.suppressionConfig.action === 'remove_from_journey' ? 'Remove' : 'Skip'}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* A/B Test Node Configuration */}
+      {!isAnalyticsMode && data.nodeType === 'abtest' && (
+        <div className="mt-2 space-y-1">
+          <p className="text-xs font-medium">
+            {formatABTestConfig(data.abtestConfig)}
+          </p>
+          {data.abtestConfig && (
+            <div className="text-xs text-muted-foreground">
+              {data.abtestConfig.duration} {data.abtestConfig.durationUnit} • {data.abtestConfig.successMetric.replace(/_/g, ' ')}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Attribution Node Configuration */}
+      {!isAnalyticsMode && data.nodeType === 'attribution' && (
+        <div className="mt-2 space-y-1">
+          <p className="text-xs font-medium">
+            {formatAttributionConfig(data.attributionConfig)}
+          </p>
+          {data.attributionConfig && (
+            <div className="text-xs text-muted-foreground">
+              Lookback: {data.attributionConfig.lookbackWindow} {data.attributionConfig.lookbackUnit}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Score Node Configuration */}
+      {!isAnalyticsMode && data.nodeType === 'score' && (
+        <div className="mt-2 space-y-1">
+          <p className="text-xs font-medium capitalize">
+            {formatScoreConfig(data.scoreConfig)}
+          </p>
+          {data.scoreConfig && (
+            <div className="text-xs text-muted-foreground">
+              Bounds: {data.scoreConfig.minBound} - {data.scoreConfig.maxBound}
             </div>
           )}
         </div>

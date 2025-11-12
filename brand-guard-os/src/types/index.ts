@@ -6,6 +6,76 @@ export type MLRStatus = 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'CHANGES_REQUESTED
 export type SegmentType = 'DEMOGRAPHIC' | 'INSTITUTIONAL' | 'BEHAVIOURAL';
 export type AssetType = 'IMAGE' | 'PDF' | 'HTML' | 'VIDEO';
 
+// Journey Node Configuration Types
+export interface WaitConfig {
+  type: 'time' | 'event' | 'time_or_event';
+  duration?: number;
+  durationUnit?: 'hours' | 'days' | 'weeks';
+  event?: string;
+  maxWaitDuration?: number;
+  maxWaitUnit?: 'hours' | 'days' | 'weeks';
+}
+
+export interface DecisionConfig {
+  type: 'engagement' | 'demographic' | 'behavioral' | 'segment' | 'custom';
+  criterion?: string;
+  paths: {
+    label: string;
+    condition: string;
+  }[];
+}
+
+export interface SuppressionConfig {
+  lists: string[];
+  logic: 'AND' | 'OR';
+  action: 'remove_from_journey' | 'skip_sequence';
+  allowOverride: boolean;
+  auditLog: boolean;
+}
+
+export interface ABTestConfig {
+  testName: string;
+  hypothesis: string;
+  variants: {
+    name: string;
+    allocation: number;
+    contentId?: string;
+  }[];
+  randomization: 'random' | 'stable_hash' | 'stratified';
+  successMetric: string;
+  duration: number;
+  durationUnit: 'days' | 'weeks';
+  autoPromote: boolean;
+  significanceThreshold: number;
+}
+
+export interface AttributionConfig {
+  eventType: string;
+  eventName: string;
+  conversionValue: number;
+  attributionWeight: number;
+  lookbackWindow: number;
+  lookbackUnit: 'days' | 'weeks';
+  crossCampaignAttribution: boolean;
+  deduplication: 'allow_multiple' | 'first_only' | 'most_recent';
+  notifyOnConversion: boolean;
+  updateCRM: boolean;
+}
+
+export interface ScoreConfig {
+  scoreType: string;
+  updateLogic: 'add' | 'subtract' | 'set' | 'multiply';
+  pointValue: number;
+  minBound: number;
+  maxBound: number;
+  triggerCondition: 'immediate' | 'end_of_sequence' | 'on_event';
+  reevaluateSegment: boolean;
+  alertOnThreshold: boolean;
+  thresholdValue?: number;
+}
+
+export type NodeConfig = WaitConfig | DecisionConfig | SuppressionConfig | ABTestConfig | AttributionConfig | ScoreConfig;
+
 export interface User {
   id: string;
   name: string;
