@@ -44,7 +44,7 @@ import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
 import { NodeConfigDialog, type NodeConfig } from '@/components/NodeConfigDialog';
 import { SequenceDashboard } from '@/components/SequenceDashboard';
-import { mockSegments, mockCampaigns, mockContentLibrary } from '@/lib/mockData';
+import { mockSegments, mockCampaigns, mockContentLibrary, mockContentResonance } from '@/lib/mockData';
 import type {
   ContentAsset,
   ContentChannel,
@@ -1586,6 +1586,8 @@ export default function Journey() {
               // This is called on drag start, actual drag is handled by the component
             }}
             selectedContentId={selectedContent?.id}
+            microsegments={microsegments}
+            resonancePredictions={mockContentResonance}
           />
         </div>
 

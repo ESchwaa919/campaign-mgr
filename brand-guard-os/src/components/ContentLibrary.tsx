@@ -3,7 +3,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Search, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
-import type { ContentAsset } from '@/types';
+import { ResonanceBadgeGroup } from '@/components/ResonanceBadge';
+import type { ContentAsset, Microsegment, ContentResonancePrediction } from '@/types';
 
 interface ContentLibraryProps {
   content: ContentAsset[];
@@ -11,6 +12,8 @@ interface ContentLibraryProps {
   onContentSelect: (asset: ContentAsset) => void;
   onContentDrag: (asset: ContentAsset) => void;
   selectedContentId?: string;
+  microsegments?: Microsegment[];
+  resonancePredictions?: ContentResonancePrediction[];
 }
 
 export function ContentLibrary({
@@ -19,7 +22,16 @@ export function ContentLibrary({
   onContentSelect,
   onContentDrag,
   selectedContentId,
+  microsegments = [],
+  resonancePredictions = [],
 }: ContentLibraryProps) {
+  // Create map of microsegment IDs to names for easy lookup
+  const microsegmentNames = new Map(microsegments.map((ms) => [ms.id, ms.name]));
+
+  // Helper function to get predictions for a specific content item
+  const getPredictionsForContent = (contentId: string): ContentResonancePrediction[] => {
+    return resonancePredictions.filter((pred) => pred.contentId === contentId);
+  };
   return (
     <Card className="w-80 flex flex-col h-full">
       <CardHeader className="pb-3">
@@ -128,6 +140,21 @@ export function ContentLibrary({
                           {asset.audienceType}
                         </Badge>
                       </div>
+
+                      {/* Resonance Scores */}
+                      {microsegments.length > 0 && (
+                        <div className="mt-2 pt-2 border-t">
+                          <p className="text-xs font-medium text-muted-foreground mb-1.5">
+                            Resonance Scores:
+                          </p>
+                          <ResonanceBadgeGroup
+                            predictions={getPredictionsForContent(asset.id)}
+                            microsegmentNames={microsegmentNames}
+                            layout="vertical"
+                            size="sm"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 
