@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ import { useCampaigns, useCreateCampaign } from '@/hooks/useCampaigns';
 import { toast } from 'sonner';
 
 export default function Campaigns() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
@@ -166,7 +168,12 @@ export default function Campaigns() {
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => navigate(`/campaigns/${campaign.id}`)}
+                  >
                     View Details
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1">
