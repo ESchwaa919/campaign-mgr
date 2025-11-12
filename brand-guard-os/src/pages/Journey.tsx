@@ -36,7 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw } from 'lucide-react';
+import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw, Trash2 } from 'lucide-react';
 import { JourneyNode } from '@/components/JourneyNode';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
@@ -290,6 +290,10 @@ export default function Journey() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [nodeToEdit, setNodeToEdit] = useState<Node | null>(null);
   const [editedLabel, setEditedLabel] = useState('');
+
+  // Saved journeys dialog
+  const [loadDialogOpen, setLoadDialogOpen] = useState(false);
+  const [savedJourneys, setSavedJourneys] = useState<any[]>([]);
 
   // Mock metrics data (simulates live execution data)
   const mockNodeMetrics: Record<string, JourneyNodeMetrics> = useMemo(() => ({
@@ -939,10 +943,26 @@ export default function Journey() {
     );
   };
 
+  // Load saved journeys from localStorage on mount
+  useEffect(() => {
+    const loadSavedJourneys = () => {
+      try {
+        const saved = localStorage.getItem('brandguard_journeys');
+        if (saved) {
+          setSavedJourneys(JSON.parse(saved));
+        }
+      } catch (error) {
+        console.error('Error loading saved journeys:', error);
+      }
+    };
+    loadSavedJourneys();
+  }, []);
+
   // Save/load journey
   const saveJourney = () => {
     const journey = {
-      name: campaignName,
+      id: `journey-${Date.now()}`,
+      name: campaignName || 'Untitled Journey',
       brand: selectedBrand,
       audienceType: selectedAudienceType,
       segment: selectedSegment,
@@ -952,12 +972,49 @@ export default function Journey() {
       createdAt: new Date().toISOString(),
     };
 
-    localStorage.setItem('savedJourney', JSON.stringify(journey));
+    try {
+      const existing = localStorage.getItem('brandguard_journeys');
+      const journeys = existing ? JSON.parse(existing) : [];
+      journeys.unshift(journey); // Add to beginning
+
+      // Keep only last 20 journeys
+      const trimmed = journeys.slice(0, 20);
+
+      localStorage.setItem('brandguard_journeys', JSON.stringify(trimmed));
+      setSavedJourneys(trimmed);
+
+      // Show success message
+      alert(`Journey "${journey.name}" saved successfully!`);
+    } catch (error) {
+      console.error('Error saving journey:', error);
+      alert('Error saving journey. Please try again.');
+    }
   };
 
   const loadJourney = () => {
-    // Show template selection dialog
-    setTemplateDialogOpen(true);
+    // Show saved journeys dialog
+    setLoadDialogOpen(true);
+  };
+
+  const loadJourneyFromSaved = (journey: any) => {
+    // Load the selected journey
+    setSelectedBrand(journey.brand);
+    setSelectedAudienceType(journey.audienceType);
+    setSelectedSegment(journey.segment);
+    setCampaignLabel(journey.label);
+    setNodes(journey.nodes);
+    setEdges(journey.edges);
+    setLoadDialogOpen(false);
+  };
+
+  const deleteSavedJourney = (journeyId: string) => {
+    try {
+      const filtered = savedJourneys.filter(j => j.id !== journeyId);
+      localStorage.setItem('brandguard_journeys', JSON.stringify(filtered));
+      setSavedJourneys(filtered);
+    } catch (error) {
+      console.error('Error deleting journey:', error);
+    }
   };
 
   const loadJourneyTemplate = (template: JourneyTemplate) => {
@@ -1395,28 +1452,39 @@ export default function Journey() {
           </CardContent>
         </Card>
 
-        {/* Canvas */}
-        <div
-          ref={reactFlowWrapper}
-          className="flex-1 m-4 ml-0 border rounded-lg bg-background"
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-        >
-          <ReactFlow
-            nodes={enrichedNodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onNodeClick={onNodeClick}
-            onNodeDoubleClick={handleNodeDoubleClick}
-            onInit={setReactFlowInstance}
-            nodeTypes={nodeTypes}
-            fitView
-          >
-            <Background />
-            <Controls />
-          </ReactFlow>
+        {/* Canvas or Sequence Dashboard */}
+        <div className="flex-1 m-4 ml-0 border rounded-lg bg-background overflow-hidden">
+          {showSequenceDashboard ? (
+            <SequenceDashboard
+              nodes={enrichedNodes}
+              edges={edges}
+              nodeSequences={nodeSequences}
+              metrics={mockNodeMetrics}
+            />
+          ) : (
+            <div
+              ref={reactFlowWrapper}
+              className="h-full"
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+            >
+              <ReactFlow
+                nodes={enrichedNodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                onNodeClick={onNodeClick}
+                onNodeDoubleClick={handleNodeDoubleClick}
+                onInit={setReactFlowInstance}
+                nodeTypes={nodeTypes}
+                fitView
+              >
+                <Background />
+                <Controls />
+              </ReactFlow>
+            </div>
+          )}
         </div>
 
         {/* Content Library */}
@@ -1490,6 +1558,81 @@ export default function Journey() {
               Save Label
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Load Saved Journey Dialog */}
+      <Dialog open={loadDialogOpen} onOpenChange={setLoadDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Load Saved Journey</DialogTitle>
+            <DialogDescription>
+              Select a previously saved journey to continue working on it. Your last 20 saved journeys are shown below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {savedJourneys.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <p>No saved journeys found.</p>
+                <p className="text-sm mt-2">Save your current journey using the "Save" button.</p>
+              </div>
+            ) : (
+              savedJourneys.map((journey) => (
+                <Card
+                  key={journey.id}
+                  className="cursor-pointer hover:border-primary transition-colors"
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1" onClick={() => loadJourneyFromSaved(journey)}>
+                        <h3 className="font-semibold text-lg">{journey.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Saved {new Date(journey.createdAt).toLocaleString()}
+                        </p>
+                        <div className="flex gap-2 mt-3">
+                          {journey.brand && (
+                            <Badge variant="outline">{brands.find(b => b.id === journey.brand)?.name || journey.brand}</Badge>
+                          )}
+                          {journey.audienceType && (
+                            <Badge variant="secondary">{journey.audienceType}</Badge>
+                          )}
+                          {journey.segment && (
+                            <Badge>{mockSegments.find(s => s.id === journey.segment)?.name || journey.segment}</Badge>
+                          )}
+                          <Badge variant="outline">{journey.nodes?.length || 0} nodes</Badge>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Delete "${journey.name}"?`)) {
+                            deleteSavedJourney(journey.id);
+                          }
+                        }}
+                        className="ml-2 text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+          <div className="mt-4 border-t pt-4">
+            <h4 className="font-medium mb-2">Or start from a template:</h4>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setLoadDialogOpen(false);
+                setTemplateDialogOpen(true);
+              }}
+            >
+              Browse Templates
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
