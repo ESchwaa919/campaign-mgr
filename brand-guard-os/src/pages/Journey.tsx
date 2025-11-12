@@ -36,15 +36,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw, Trash2, Sparkles } from 'lucide-react';
+import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw, Trash2, Sparkles, Rocket } from 'lucide-react';
 import { JourneyNode } from '@/components/JourneyNode';
 import { MicrosegmentNode } from '@/components/MicrosegmentNode';
 import { MicrosegmentGenerator } from '@/components/MicrosegmentGenerator';
+import { JourneyActivationDialog } from '@/components/JourneyActivationDialog';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
 import { NodeConfigDialog, type NodeConfig } from '@/components/NodeConfigDialog';
 import { SequenceDashboard } from '@/components/SequenceDashboard';
-import { mockSegments, mockCampaigns, mockContentLibrary, mockContentResonance } from '@/lib/mockData';
+import { mockSegments, mockCampaigns, mockContentLibrary, mockContentResonance, mockBrands } from '@/lib/mockData';
+import { mintIDsAndActivate } from '@/lib/idRegistry';
 import type {
   ContentAsset,
   ContentChannel,
@@ -52,6 +54,7 @@ import type {
   Microsegment,
   JourneyStatus,
   JourneyNodeMetrics,
+  JourneyActivationResult,
   WaitConfig,
   DecisionConfig,
   SuppressionConfig,
@@ -275,6 +278,10 @@ export default function Journey() {
   // Microsegments
   const [microsegments, setMicrosegments] = useState<Microsegment[]>([]);
   const [microsegmentDialogOpen, setMicrosegmentDialogOpen] = useState(false);
+
+  // Journey Activation
+  const [activationDialogOpen, setActivationDialogOpen] = useState(false);
+  const [activationResult, setActivationResult] = useState<JourneyActivationResult | null>(null);
 
   // Content state
   const [selectedContent, setSelectedContent] = useState<ContentAsset | null>(null);
@@ -1001,6 +1008,48 @@ export default function Journey() {
     setEdges((eds) => [...eds, ...newEdges]);
   };
 
+  // Handle journey activation
+  const handleActivateJourney = async (): Promise<JourneyActivationResult> => {
+    // Call the ID registry service to mint IDs and generate tracking
+    const result = await mintIDsAndActivate({
+      campaignName,
+      nodes,
+      edges,
+      microsegments,
+      brand: selectedBrand,
+      audienceType: selectedAudienceType as 'HCP' | 'PATIENT',
+      segment: selectedSegment,
+      therapeuticArea: mockBrands.find((b) => b.id === selectedBrand)?.therapeuticArea || 'Unknown',
+      indication: 'wet_amd', // TODO: Make this configurable
+    });
+
+    return result;
+  };
+
+  const handleActivationComplete = (result: JourneyActivationResult) => {
+    setActivationResult(result);
+    setJourneyStatus('ACTIVE');
+    setViewMode('analytics');
+
+    // Update nodes with tracking data
+    setNodes((currentNodes) =>
+      currentNodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          viewMode: 'analytics' as const,
+          // Add registry entry if this node has one
+          registryEntry: result.idRegistryEntries.find(
+            (entry) =>
+              entry.type === 'SEQUENCE' &&
+              entry.sequenceNumber !== undefined &&
+              entry.campaignId === result.campaignId
+          ),
+        },
+      }))
+    );
+  };
+
   // Load saved journeys from localStorage on mount
   useEffect(() => {
     const loadSavedJourneys = () => {
@@ -1243,6 +1292,21 @@ export default function Journey() {
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
+            {microsegments.length > 0 && nodes.length > 1 && journeyStatus === 'DESIGN' && (
+              <Button
+                size="sm"
+                variant="default"
+                onClick={() => setActivationDialogOpen(true)}
+              >
+                <Rocket className="h-4 w-4 mr-2" />
+                Activate Journey
+              </Button>
+            )}
+            {activationResult && (
+              <Badge variant="secondary" className="ml-2">
+                Active: {activationResult.campaignId}
+              </Badge>
+            )}
           </div>
         </div>
 
@@ -1620,6 +1684,14 @@ export default function Journey() {
           onConfirm={handleMicrosegmentConfirm}
         />
       )}
+
+      {/* Journey Activation Dialog */}
+      <JourneyActivationDialog
+        open={activationDialogOpen}
+        onOpenChange={setActivationDialogOpen}
+        onActivate={handleActivateJourney}
+        onComplete={handleActivationComplete}
+      />
 
       {/* Edit Node Label Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
