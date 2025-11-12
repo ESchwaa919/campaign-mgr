@@ -1233,10 +1233,10 @@ export default function Journey() {
             {/* View Mode Toggle */}
             <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'design' | 'analytics')}>
               <TabsList className="h-9">
-                <TabsTrigger value="design" className="text-xs">
-                  Design
+                <TabsTrigger value="design" className="text-xs px-3">
+                  <span className="flex items-center gap-1">Design</span>
                 </TabsTrigger>
-                <TabsTrigger value="analytics" className="text-xs" disabled={journeyStatus === 'DESIGN'}>
+                <TabsTrigger value="analytics" className="text-xs px-3" disabled={journeyStatus === 'DESIGN'}>
                   <BarChart3 className="h-3 w-3 mr-1" />
                   Analytics
                 </TabsTrigger>
