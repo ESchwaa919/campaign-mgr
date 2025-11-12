@@ -6,7 +6,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, BarChart3, Users, Database, Map } from 'lucide-react';
 import { IDRegistryPanel } from '@/components/IDRegistryPanel';
 import { TrackingKeyDisplay } from '@/components/TrackingKeyDisplay';
-import { mockIDRegistry, mockMicrosegments, mockBrands, mockSegments } from '@/lib/mockData';
+import { ContentMappingTable } from '@/components/ContentMappingTable';
+import { SequencePerformanceDashboard } from '@/components/SequencePerformanceDashboard';
+import {
+  mockIDRegistry,
+  mockMicrosegments,
+  mockBrands,
+  mockSegments,
+  mockContentLibrary,
+  mockContentResonance,
+} from '@/lib/mockData';
 
 export default function CampaignDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +36,20 @@ export default function CampaignDetailView() {
   // Mock data - in production would come from activation result
   const microsegments = mockMicrosegments;
   const idRegistry = mockIDRegistry;
+
+  // Prepare content assets for mapping table (first 6 for demo)
+  const contentAssets = mockContentLibrary.slice(0, 6).map((asset) => ({
+    id: asset.id,
+    title: asset.title,
+    type: asset.type,
+    format: asset.format,
+  }));
+
+  // Get relevant resonance predictions
+  const contentIds = contentAssets.map((c) => c.id);
+  const relevantPredictions = mockContentResonance.filter((pred) =>
+    contentIds.includes(pred.contentId)
+  );
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -217,17 +240,11 @@ export default function CampaignDetailView() {
 
           {/* Content Mappings Tab */}
           <TabsContent value="content" className="flex-1 overflow-auto mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Content Mappings</CardTitle>
-                <CardDescription>
-                  Content performance by microsegment - Coming soon
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Content mapping table will be displayed here</p>
-              </CardContent>
-            </Card>
+            <ContentMappingTable
+              microsegments={microsegments}
+              predictions={relevantPredictions}
+              contentAssets={contentAssets}
+            />
           </TabsContent>
 
           {/* Tracking Tab */}
@@ -247,17 +264,11 @@ export default function CampaignDetailView() {
 
           {/* Performance Tab */}
           <TabsContent value="performance" className="flex-1 overflow-auto mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Dashboard</CardTitle>
-                <CardDescription>
-                  Real-time campaign performance metrics - Coming soon
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Performance charts will be displayed here</p>
-              </CardContent>
-            </Card>
+            <SequencePerformanceDashboard
+              idRegistry={idRegistry}
+              microsegments={microsegments}
+              campaignId={campaign.id}
+            />
           </TabsContent>
         </Tabs>
       </div>
