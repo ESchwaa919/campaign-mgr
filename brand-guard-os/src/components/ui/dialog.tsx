@@ -51,8 +51,9 @@ export const DialogContent = React.forwardRef<
 ));
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
-// DialogHeader and DialogFooter moved to dialog-layout.tsx to avoid bundling issues
-export { DialogHeader, DialogFooter } from './dialog-layout';
+// DialogHeader and DialogFooter are in dialog-layout.tsx
+// DO NOT RE-EXPORT THEM HERE - causes tree-shaking issues
+// Import directly from dialog-layout.tsx in consuming components
 
 export const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,

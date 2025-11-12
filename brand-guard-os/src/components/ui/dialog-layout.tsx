@@ -1,7 +1,10 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Separate file for DialogHeader and DialogFooter to avoid bundling issues
+// Isolated DialogHeader and DialogFooter components
+// These are imported directly to bypass tree-shaking issues in dialog.tsx
+// v1.0.1 - Direct import only, no re-exports
+
 export function DialogHeader({
   className,
   ...props

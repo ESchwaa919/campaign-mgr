@@ -33,9 +33,9 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { DialogHeader, DialogFooter } from '@/components/ui/dialog-layout';
 import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw, Trash2, Sparkles, Rocket } from 'lucide-react';
 import { JourneyNode } from '@/components/JourneyNode';
 import { MicrosegmentNode } from '@/components/MicrosegmentNode';
