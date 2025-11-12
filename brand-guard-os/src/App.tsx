@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Campaigns from "./pages/Campaigns";
+import CampaignDetailView from "./pages/CampaignDetailView";
 import Claims from "./pages/Claims";
 import MLR from "./pages/MLR";
 import Segments from "./pages/Segments";
@@ -27,6 +28,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/campaigns" element={<Campaigns />} />
+            <Route path="/campaigns/:id" element={<CampaignDetailView />} />
             <Route path="/claims" element={<Claims />} />
             <Route path="/mlr" element={<MLR />} />
             <Route path="/segments" element={<Segments />} />
