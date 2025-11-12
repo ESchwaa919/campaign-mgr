@@ -312,7 +312,7 @@ export default function Journey() {
 
   // Change node type dialog state (missing state variable causing runtime error)
   const [changeTypeDialogOpen, setChangeTypeDialogOpen] = useState(false);
-  const [nodeToChangeType, setNodeToChangeType] = useState<Node | null>(null);
+  const [nodeToChange, setNodeToChangeType] = useState<Node | null>(null);
 
   // Mock metrics data (simulates live execution data)
   const mockNodeMetrics: Record<string, JourneyNodeMetrics> = useMemo(() => ({
