@@ -40,10 +40,22 @@ import { Save, Download, Upload, Plus, Play, Pause, BarChart3, RotateCcw } from 
 import { JourneyNode } from '@/components/JourneyNode';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
-import { NodeConfigDialog, WaitConfig, DecisionConfig } from '@/components/NodeConfigDialog';
+import { NodeConfigDialog, type NodeConfig } from '@/components/NodeConfigDialog';
 import { SequenceDashboard } from '@/components/SequenceDashboard';
 import { mockSegments, mockCampaigns, mockContentLibrary } from '@/lib/mockData';
-import type { ContentAsset, ContentChannel, Segment, JourneyStatus, JourneyNodeMetrics } from '@/types';
+import type {
+  ContentAsset,
+  ContentChannel,
+  Segment,
+  JourneyStatus,
+  JourneyNodeMetrics,
+  WaitConfig,
+  DecisionConfig,
+  SuppressionConfig,
+  ABTestConfig,
+  AttributionConfig,
+  ScoreConfig,
+} from '@/types';
 
 // Node types for React Flow
 const nodeTypes: NodeTypes = {
@@ -266,16 +278,18 @@ export default function Journey() {
 
   // Node configuration dialog
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
-  const [configNodeType, setConfigNodeType] = useState<'wait' | 'decision'>('wait');
+  const [configNodeType, setConfigNodeType] = useState<'wait' | 'decision' | 'suppression' | 'abtest' | 'attribution' | 'score'>('wait');
   const [pendingNodeConfig, setPendingNodeConfig] = useState<typeof nodeTypeConfigs[number] | null>(null);
+  const [editingNode, setEditingNode] = useState<Node | null>(null);
 
   // Journey template dialog
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [pendingNodePosition, setPendingNodePosition] = useState<{ x: number; y: number } | null>(null);
 
-  // Node type change dialog
-  const [changeTypeDialogOpen, setChangeTypeDialogOpen] = useState(false);
-  const [nodeToChange, setNodeToChange] = useState<Node | null>(null);
+  // Node editing dialog
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [nodeToEdit, setNodeToEdit] = useState<Node | null>(null);
+  const [editedLabel, setEditedLabel] = useState('');
 
   // Mock metrics data (simulates live execution data)
   const mockNodeMetrics: Record<string, JourneyNodeMetrics> = useMemo(() => ({
@@ -494,27 +508,11 @@ export default function Journey() {
     []
   );
 
-  // Handle node click - open config for wait/decision nodes
-  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    if (journeyStatus !== 'DESIGN') return; // Only allow in design mode
-
-    if (node.data.nodeType === 'wait' || node.data.nodeType === 'decision') {
-      // Open configuration dialog with existing config
-      setConfigNodeType(node.data.nodeType);
-      setConfigDialogOpen(true);
-      // Store the node being edited
-      setPendingNodeConfig({
-        id: node.data.nodeType,
-        label: node.data.label,
-        nodeType: node.data.nodeType,
-        channel: null
-      });
-      // Store node ID for updating instead of creating
-      setPendingNodePosition({ x: 0, y: 0 }); // Not used for edit, but need to set something
-      // @ts-ignore - add editingNodeId to track which node we're editing
-      window.editingNodeId = node.id;
-    }
-  }, [journeyStatus]);
+  // Handle node click - just select the node
+  const onNodeClick = useCallback((_event: React.MouseEvent, _node: Node) => {
+    // Node selection is handled by React Flow
+    // Configuration is now handled by double-click
+  }, []);
 
   // Handle dropping content onto existing nodes
   const onNodeDrop = useCallback((event: React.DragEvent, node: Node) => {
@@ -790,28 +788,28 @@ export default function Journey() {
   };
 
   // Handle node configuration save
-  const handleNodeConfigSave = (config: WaitConfig | DecisionConfig) => {
-    // @ts-ignore
-    const editingNodeId = window.editingNodeId;
-
-    if (editingNodeId) {
+  const handleNodeConfigSave = (config: NodeConfig) => {
+    if (editingNode) {
       // Editing existing node
       setNodes((nds) =>
         nds.map((n) =>
-          n.id === editingNodeId
+          n.id === editingNode.id
             ? {
                 ...n,
                 data: {
                   ...n.data,
                   ...(configNodeType === 'wait' ? { waitConfig: config as WaitConfig } : {}),
                   ...(configNodeType === 'decision' ? { decisionConfig: config as DecisionConfig } : {}),
+                  ...(configNodeType === 'suppression' ? { suppressionConfig: config as SuppressionConfig } : {}),
+                  ...(configNodeType === 'abtest' ? { abtestConfig: config as ABTestConfig } : {}),
+                  ...(configNodeType === 'attribution' ? { attributionConfig: config as AttributionConfig } : {}),
+                  ...(configNodeType === 'score' ? { scoreConfig: config as ScoreConfig } : {}),
                 },
               }
             : n
         )
       );
-      // @ts-ignore
-      window.editingNodeId = undefined;
+      setEditingNode(null);
     } else {
       // Creating new node
       if (!pendingNodeConfig || !pendingNodePosition) return;
@@ -826,6 +824,10 @@ export default function Journey() {
           metrics: mockNodeMetrics[`node-${nodeIdCounter}`],
           ...(configNodeType === 'wait' ? { waitConfig: config as WaitConfig } : {}),
           ...(configNodeType === 'decision' ? { decisionConfig: config as DecisionConfig } : {}),
+          ...(configNodeType === 'suppression' ? { suppressionConfig: config as SuppressionConfig } : {}),
+          ...(configNodeType === 'abtest' ? { abtestConfig: config as ABTestConfig } : {}),
+          ...(configNodeType === 'attribution' ? { attributionConfig: config as AttributionConfig } : {}),
+          ...(configNodeType === 'score' ? { scoreConfig: config as ScoreConfig } : {}),
         },
         position: pendingNodePosition,
       };
@@ -837,6 +839,29 @@ export default function Journey() {
     // Clear pending state
     setPendingNodeConfig(null);
     setPendingNodePosition(null);
+  };
+
+  // Handle node label edit save
+  const handleLabelEditSave = () => {
+    if (!nodeToEdit) return;
+
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === nodeToEdit.id
+          ? {
+              ...n,
+              data: {
+                ...n.data,
+                label: editedLabel.trim() || n.data.label, // Keep old label if empty
+              },
+            }
+          : n
+      )
+    );
+
+    setEditDialogOpen(false);
+    setNodeToEdit(null);
+    setEditedLabel('');
   };
 
   // Add node with content from details panel
@@ -959,10 +984,20 @@ export default function Journey() {
   };
 
   const handleNodeDoubleClick = useCallback((_event: React.MouseEvent, node: Node) => {
-    // Only allow changing type for non-entry nodes
-    if (node.data.nodeType !== 'entry') {
-      setNodeToChange(node);
-      setChangeTypeDialogOpen(true);
+    // Entry nodes can't be edited
+    if (node.data.nodeType === 'entry') return;
+
+    // For configurable nodes, open config dialog
+    const configurableTypes = ['wait', 'decision', 'suppression', 'abtest', 'attribution', 'score'];
+    if (configurableTypes.includes(node.data.nodeType)) {
+      setEditingNode(node);
+      setConfigNodeType(node.data.nodeType as any);
+      setConfigDialogOpen(true);
+    } else {
+      // For all other nodes, open edit dialog to change label
+      setNodeToEdit(node);
+      setEditedLabel(node.data.label);
+      setEditDialogOpen(true);
     }
   }, []);
 
@@ -1417,6 +1452,46 @@ export default function Journey() {
         nodeType={configNodeType}
         onSave={handleNodeConfigSave}
       />
+
+      {/* Edit Node Label Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Node Label</DialogTitle>
+            <DialogDescription>
+              Change the display label for "{nodeToEdit?.data.label}". This helps you identify nodes on the canvas.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="node-label">Node Label</Label>
+              <Input
+                id="node-label"
+                value={editedLabel}
+                onChange={(e) => setEditedLabel(e.target.value)}
+                placeholder="Enter node label"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleLabelEditSave();
+                  }
+                }}
+                autoFocus
+              />
+              <p className="text-xs text-muted-foreground">
+                This label is for display purposes only and doesn't affect functionality.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleLabelEditSave}>
+              Save Label
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Journey Template Selection Dialog */}
       <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
