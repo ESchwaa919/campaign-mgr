@@ -973,9 +973,10 @@ export default function Journey() {
     const newNodes: Node[] = [];
     const newEdges: Edge[] = [];
 
-    // Arrange microsegment nodes horizontally below the entry node
-    const startX = entryNode.position.x - (confirmedMicrosegments.length - 1) * 150;
-    const startY = entryNode.position.y + 150;
+    // Arrange microsegment nodes vertically to the right of entry node (left-to-right reading order)
+    const startX = entryNode.position.x + 350; // Position to the right of entry node
+    const totalHeight = (confirmedMicrosegments.length - 1) * 120; // Vertical spacing between nodes
+    const startY = entryNode.position.y - totalHeight / 2; // Center vertically around entry node
 
     confirmedMicrosegments.forEach((microsegment, index) => {
       const nodeId = `microseg-${Date.now()}-${index}`;
@@ -985,8 +986,8 @@ export default function Journey() {
         id: nodeId,
         type: 'microsegment',
         position: {
-          x: startX + index * 300,
-          y: startY,
+          x: startX,
+          y: startY + index * 120, // Vertical spacing
         },
         data: {
           label: microsegment.name,
@@ -995,11 +996,13 @@ export default function Journey() {
         },
       });
 
-      // Create edge from Entry to this microsegment
+      // Create edge from Entry (right connector) to Microsegment (left connector)
       newEdges.push({
         id: `edge-entry-${nodeId}`,
         source: '1',
+        sourceHandle: 'right', // Connect from right side of Entry node
         target: nodeId,
+        targetHandle: 'left', // Connect to left side of Microsegment node
         type: 'default',
         markerEnd: {
           type: MarkerType.ArrowClosed,
