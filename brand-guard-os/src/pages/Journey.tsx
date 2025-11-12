@@ -1276,7 +1276,7 @@ export default function Journey() {
                 onClick={() => setShowSequenceDashboard(!showSequenceDashboard)}
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
-                {showSequenceDashboard ? 'Show Canvas' : 'Sequence Dashboard'}
+                {showSequenceDashboard ? 'Show Canvas' : 'Campaign Detail View'}
               </Button>
             )}
 

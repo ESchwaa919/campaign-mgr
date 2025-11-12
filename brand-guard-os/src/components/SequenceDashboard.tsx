@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, TrendingDown, ArrowRight, AlertTriangle } from 'lucide-react';
+import { CampaignPerformanceMatrix } from './CampaignPerformanceMatrix';
 
 interface SequencePerformance {
   sequenceNumber: number;
@@ -170,13 +171,153 @@ export function SequenceDashboard() {
         </p>
       </div>
 
-      <Tabs defaultValue="sequence" className="space-y-4">
+      <Tabs defaultValue="performance" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="performance">Performance Matrix</TabsTrigger>
+          <TabsTrigger value="registry">ID Registry</TabsTrigger>
           <TabsTrigger value="sequence">By Sequence</TabsTrigger>
           <TabsTrigger value="path">Path Comparison</TabsTrigger>
           <TabsTrigger value="dropoff">Drop-Off Analysis</TabsTrigger>
-          <TabsTrigger value="content">Content Effectiveness</TabsTrigger>
         </TabsList>
+
+        {/* Performance Matrix Tab */}
+        <TabsContent value="performance">
+          <CampaignPerformanceMatrix />
+        </TabsContent>
+
+        {/* ID Registry Tab */}
+        <TabsContent value="registry" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>ID Registry - Composite Key Tracking</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                All minted IDs for this campaign showing the composite key structure that enables granular performance tracking
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-2 font-semibold">Composite Key</th>
+                      <th className="text-left p-2 font-semibold">Campaign ID</th>
+                      <th className="text-left p-2 font-semibold">Sequence</th>
+                      <th className="text-left p-2 font-semibold">Content ID</th>
+                      <th className="text-left p-2 font-semibold">Microsegment</th>
+                      <th className="text-left p-2 font-semibold">UTM Parameters</th>
+                    </tr>
+                  </thead>
+                  <tbody className="font-mono text-xs">
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-1/CNT-2024-0001/MSEG-001</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-1</td>
+                      <td className="p-2">CNT-2024-0001</td>
+                      <td className="p-2">MSEG-001</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-1/CNT-2024-0001/MSEG-002</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-1</td>
+                      <td className="p-2">CNT-2024-0001</td>
+                      <td className="p-2">MSEG-002</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-1/CNT-2024-0001/MSEG-003</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-1</td>
+                      <td className="p-2">CNT-2024-0001</td>
+                      <td className="p-2">MSEG-003</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-1/CNT-2024-0001/MSEG-004</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-1</td>
+                      <td className="p-2">CNT-2024-0001</td>
+                      <td className="p-2">MSEG-004</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-3/CNT-2024-0011/MSEG-001</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-3</td>
+                      <td className="p-2">CNT-2024-0011</td>
+                      <td className="p-2">MSEG-001</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-3/CNT-2024-0011/MSEG-002</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-3</td>
+                      <td className="p-2">CNT-2024-0011</td>
+                      <td className="p-2">MSEG-002</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-3/CNT-2024-0011/MSEG-003</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-3</td>
+                      <td className="p-2">CNT-2024-0011</td>
+                      <td className="p-2">MSEG-003</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-3/CNT-2024-0011/MSEG-004</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-3</td>
+                      <td className="p-2">CNT-2024-0011</td>
+                      <td className="p-2">MSEG-004</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-5/CNT-2024-0040/MSEG-001</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-5</td>
+                      <td className="p-2">CNT-2024-0040</td>
+                      <td className="p-2">MSEG-001</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-5/CNT-2024-0040/MSEG-002</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-5</td>
+                      <td className="p-2">CNT-2024-0040</td>
+                      <td className="p-2">MSEG-002</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-5/CNT-2024-0040/MSEG-003</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-5</td>
+                      <td className="p-2">CNT-2024-0040</td>
+                      <td className="p-2">MSEG-003</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                    <tr className="border-b hover:bg-muted/50">
+                      <td className="p-2">CMP-2024-001/SEQ-5/CNT-2024-0040/MSEG-004</td>
+                      <td className="p-2">CMP-2024-001</td>
+                      <td className="p-2">SEQ-5</td>
+                      <td className="p-2">CNT-2024-0040</td>
+                      <td className="p-2">MSEG-004</td>
+                      <td className="p-2 text-xs">utm_campaign=eylea_hcp_retina_q4</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-4 bg-blue-50 border border-blue-200 rounded p-3">
+                <p className="text-sm font-semibold text-blue-900 mb-1">How Composite Keys Enable Optimization</p>
+                <p className="text-sm text-blue-800">
+                  Each composite key tracks performance at the intersection of <strong>Campaign → Sequence → Content → Microsegment</strong>.
+                  This granularity allows you to answer questions like: "Does LinkedIn perform better for Academic HCPs vs Rural HCPs in Sequence 3?"
+                  Traditional campaign tracking (campaign-level only) cannot answer this question.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* By Sequence Tab */}
         <TabsContent value="sequence" className="space-y-4">
