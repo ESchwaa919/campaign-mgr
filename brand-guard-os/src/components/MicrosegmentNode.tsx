@@ -44,7 +44,16 @@ export function MicrosegmentNode({ data, isConnectable }: MicrosegmentNodeProps)
     <div
       className={`relative px-4 py-3 rounded-lg border-2 min-w-[220px] group ${getColorClass()} transition-all hover:shadow-md`}
     >
-      {/* Top Handle */}
+      {/* Left Handle (Primary Input for left-to-right flow) */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="left"
+        isConnectable={isConnectable}
+        className="!w-3 !h-3 !bg-gray-400 !border-2 !border-white"
+      />
+
+      {/* Top Handle (Secondary Input) */}
       <Handle
         type="target"
         position={Position.Top}

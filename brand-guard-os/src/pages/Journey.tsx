@@ -975,7 +975,8 @@ export default function Journey() {
 
     // Arrange microsegment nodes vertically to the right of entry node (left-to-right reading order)
     const startX = entryNode.position.x + 350; // Position to the right of entry node
-    const totalHeight = (confirmedMicrosegments.length - 1) * 120; // Vertical spacing between nodes
+    const verticalSpacing = 180; // Increased spacing to prevent overlap
+    const totalHeight = (confirmedMicrosegments.length - 1) * verticalSpacing; // Vertical spacing between nodes
     const startY = entryNode.position.y - totalHeight / 2; // Center vertically around entry node
 
     confirmedMicrosegments.forEach((microsegment, index) => {
@@ -987,7 +988,7 @@ export default function Journey() {
         type: 'microsegment',
         position: {
           x: startX,
-          y: startY + index * 120, // Vertical spacing
+          y: startY + index * verticalSpacing, // Vertical spacing
         },
         data: {
           label: microsegment.name,
