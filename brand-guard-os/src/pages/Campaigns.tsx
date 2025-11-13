@@ -10,14 +10,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { mockProducts } from '@/lib/mockData';
 import { StatusBadge } from '@/components/StatusBadge';
-import { Plus, Search, AlertTriangle, Loader2 } from 'lucide-react';
+import { Plus, Search, AlertTriangle, Loader2, ArrowLeft, BarChart3 } from 'lucide-react';
 import { useCampaigns, useCreateCampaign } from '@/hooks/useCampaigns';
 import { toast } from 'sonner';
+import { CampaignPerformanceMatrix } from '@/components/CampaignPerformanceMatrix';
+import { SequenceDashboard } from '@/components/SequenceDashboard';
 
 export default function Campaigns() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [newCampaign, setNewCampaign] = useState({
     name: '',
     productId: '',
@@ -72,6 +75,8 @@ export default function Campaigns() {
     }
   };
 
+  const selectedCampaign = campaigns?.find(c => c.id === selectedCampaignId);
+
   if (isLoading) {
     return (
       <div className="p-8 space-y-6">
@@ -86,6 +91,35 @@ export default function Campaigns() {
     );
   }
 
+  // If a campaign is selected, show Campaign Detail View
+  if (selectedCampaignId && selectedCampaign) {
+    return (
+      <div className="p-8 space-y-6">
+        {/* Header with Back Button */}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedCampaignId(null)}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Campaigns
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-foreground">{selectedCampaign.name}</h1>
+            <p className="text-muted-foreground mt-1">Campaign Performance Analysis</p>
+          </div>
+          <StatusBadge status={selectedCampaign.status} />
+        </div>
+
+        {/* Campaign Detail View */}
+        <CampaignPerformanceMatrix />
+      </div>
+    );
+  }
+
+  // Default: Show campaign grid
   return (
     <>
       <div className="p-8 space-y-6">
@@ -172,10 +206,11 @@ export default function Campaigns() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
-                    onClick={() => navigate(`/campaigns/${campaign.id}`)}
+                    className="flex-1 gap-2"
+                    onClick={() => setSelectedCampaignId(campaign.id)}
                   >
-                    View Details
+                    <BarChart3 className="h-4 w-4" />
+                    View Performance
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1">
                     Edit

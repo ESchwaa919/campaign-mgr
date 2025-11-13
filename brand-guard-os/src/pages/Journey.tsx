@@ -44,7 +44,6 @@ import { JourneyActivationDialog } from '@/components/JourneyActivationDialog';
 import { ContentLibrary } from '@/components/ContentLibrary';
 import { ContentDetailsPanel } from '@/components/ContentDetailsPanel';
 import { NodeConfigDialog, type NodeConfig } from '@/components/NodeConfigDialog';
-import { SequenceDashboard } from '@/components/SequenceDashboard';
 import { mockSegments, mockCampaigns, mockContentLibrary, mockContentResonance, mockBrands, mockMicrosegments } from '@/lib/mockData';
 import { mintIDsAndActivate } from '@/lib/idRegistry';
 import type {
@@ -310,7 +309,6 @@ export default function Journey() {
   // Journey lifecycle and tracking
   const [journeyStatus, setJourneyStatus] = useState<JourneyStatus>('DESIGN');
   const [viewMode, setViewMode] = useState<'design' | 'analytics'>('design');
-  const [showSequenceDashboard, setShowSequenceDashboard] = useState(false);
 
   // Node configuration dialog
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
@@ -1268,18 +1266,6 @@ export default function Journey() {
               </TabsList>
             </Tabs>
 
-            {/* Sequence Dashboard Toggle (only show in analytics mode) */}
-            {viewMode === 'analytics' && journeyStatus !== 'DESIGN' && (
-              <Button
-                size="sm"
-                variant={showSequenceDashboard ? 'default' : 'outline'}
-                onClick={() => setShowSequenceDashboard(!showSequenceDashboard)}
-              >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                {showSequenceDashboard ? 'Show Canvas' : 'Campaign Detail View'}
-              </Button>
-            )}
-
             {/* Journey Actions */}
             {journeyStatus === 'DESIGN' && (
               <Button
@@ -1633,41 +1619,30 @@ export default function Journey() {
           </CardContent>
         </Card>
 
-        {/* Canvas or Sequence Dashboard */}
-        <div className={`flex-1 m-4 ml-0 border rounded-lg bg-background ${showSequenceDashboard ? 'overflow-y-auto' : 'overflow-hidden'}`}>
-          {showSequenceDashboard ? (
-            <div className="p-6">
-              <SequenceDashboard
-                nodes={enrichedNodes}
-                edges={edges}
-                nodeSequences={nodeSequences}
-                metrics={mockNodeMetrics}
-              />
-            </div>
-          ) : (
-            <div
-              ref={reactFlowWrapper}
-              className="h-full"
-              onDrop={onDrop}
-              onDragOver={onDragOver}
+        {/* Journey Canvas */}
+        <div className="flex-1 m-4 ml-0 border rounded-lg bg-background overflow-hidden">
+          <div
+            ref={reactFlowWrapper}
+            className="h-full"
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+          >
+            <ReactFlow
+              nodes={enrichedNodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onNodeClick={onNodeClick}
+              onNodeDoubleClick={handleNodeDoubleClick}
+              onInit={setReactFlowInstance}
+              nodeTypes={nodeTypes}
+              fitView
             >
-              <ReactFlow
-                nodes={enrichedNodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onNodeClick={onNodeClick}
-                onNodeDoubleClick={handleNodeDoubleClick}
-                onInit={setReactFlowInstance}
-                nodeTypes={nodeTypes}
-                fitView
-              >
-                <Background />
-                <Controls />
-              </ReactFlow>
-            </div>
-          )}
+              <Background />
+              <Controls />
+            </ReactFlow>
+          </div>
         </div>
 
         {/* Content Library */}
