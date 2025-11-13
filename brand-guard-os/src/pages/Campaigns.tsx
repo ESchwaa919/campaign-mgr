@@ -13,7 +13,6 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { Plus, Search, AlertTriangle, Loader2, ArrowLeft, BarChart3 } from 'lucide-react';
 import { useCampaigns, useCreateCampaign } from '@/hooks/useCampaigns';
 import { toast } from 'sonner';
-import { CampaignPerformanceMatrix } from '@/components/CampaignPerformanceMatrix';
 import { SequenceDashboard } from '@/components/SequenceDashboard';
 
 export default function Campaigns() {
@@ -113,8 +112,8 @@ export default function Campaigns() {
           <StatusBadge status={selectedCampaign.status} />
         </div>
 
-        {/* Campaign Detail View */}
-        <CampaignPerformanceMatrix />
+        {/* Campaign Detail View - Complete Performance Dashboard */}
+        <SequenceDashboard />
       </div>
     );
   }
