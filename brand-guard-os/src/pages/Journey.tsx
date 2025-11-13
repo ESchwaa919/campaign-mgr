@@ -1634,14 +1634,16 @@ export default function Journey() {
         </Card>
 
         {/* Canvas or Sequence Dashboard */}
-        <div className="flex-1 m-4 ml-0 border rounded-lg bg-background overflow-hidden">
+        <div className={`flex-1 m-4 ml-0 border rounded-lg bg-background ${showSequenceDashboard ? 'overflow-y-auto' : 'overflow-hidden'}`}>
           {showSequenceDashboard ? (
-            <SequenceDashboard
-              nodes={enrichedNodes}
-              edges={edges}
-              nodeSequences={nodeSequences}
-              metrics={mockNodeMetrics}
-            />
+            <div className="p-6">
+              <SequenceDashboard
+                nodes={enrichedNodes}
+                edges={edges}
+                nodeSequences={nodeSequences}
+                metrics={mockNodeMetrics}
+              />
+            </div>
           ) : (
             <div
               ref={reactFlowWrapper}

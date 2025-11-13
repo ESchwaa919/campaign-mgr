@@ -1,11 +1,11 @@
-# BrandGuard OS Integration Requirements
+# Regeneron Integration Requirements
 ## Campaign Manager, Journey Canvas, Salesforce, Claravine & Snowflake
 
 ---
 
 ## DOCUMENT OVERVIEW
 
-This document defines the comprehensive integration requirements for BrandGuard OS across five critical systems:
+This document defines the comprehensive integration requirements for the Regeneron Campaign Manager across five critical systems:
 
 1. **Campaign Manager** - Campaign orchestration and governance
 2. **Journey Canvas** - Visual journey design and sequence management
