@@ -3,9 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, BarChart3, Users, Database, Map } from 'lucide-react';
-import { IDRegistryPanel } from '@/components/IDRegistryPanel';
-import { TrackingKeyDisplay } from '@/components/TrackingKeyDisplay';
+import { ArrowLeft, BarChart3, Users, Database, Map, Key, Workflow, FileText, TrendingUp, GitBranch, Target } from 'lucide-react';
+import { IDRegistryTrackingTab } from '@/components/IDRegistryTrackingTab';
 import { ContentMappingTable } from '@/components/ContentMappingTable';
 import { SequencePerformanceDashboard } from '@/components/SequencePerformanceDashboard';
 import {
@@ -135,16 +134,149 @@ export default function CampaignDetailView() {
 
       {/* Tabbed Content */}
       <div className="flex-1 overflow-hidden p-6">
-        <Tabs defaultValue="hierarchy" className="h-full flex flex-col">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4">
-            <TabsTrigger value="hierarchy">Audience Hierarchy</TabsTrigger>
-            <TabsTrigger value="content">Content Mappings</TabsTrigger>
-            <TabsTrigger value="tracking">ID Registry & Tracking</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
+        <Tabs defaultValue="overview" className="h-full flex flex-col">
+          <TabsList className="grid w-full grid-cols-8 h-auto">
+            <TabsTrigger value="overview" className="flex flex-col items-center gap-1 py-2">
+              <BarChart3 className="h-4 w-4" />
+              <span className="text-xs">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="audience" className="flex flex-col items-center gap-1 py-2">
+              <Users className="h-4 w-4" />
+              <span className="text-xs">Audience</span>
+            </TabsTrigger>
+            <TabsTrigger value="tracking" className="flex flex-col items-center gap-1 py-2">
+              <Key className="h-4 w-4" />
+              <span className="text-xs">ID Registry</span>
+            </TabsTrigger>
+            <TabsTrigger value="journey" className="flex flex-col items-center gap-1 py-2">
+              <Workflow className="h-4 w-4" />
+              <span className="text-xs">Journey</span>
+            </TabsTrigger>
+            <TabsTrigger value="content" className="flex flex-col items-center gap-1 py-2">
+              <FileText className="h-4 w-4" />
+              <span className="text-xs">Content</span>
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="flex flex-col items-center gap-1 py-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="text-xs">Performance</span>
+            </TabsTrigger>
+            <TabsTrigger value="sequence" className="flex flex-col items-center gap-1 py-2">
+              <GitBranch className="h-4 w-4" />
+              <span className="text-xs">Sequences</span>
+            </TabsTrigger>
+            <TabsTrigger value="matrix" className="flex flex-col items-center gap-1 py-2">
+              <Target className="h-4 w-4" />
+              <span className="text-xs">Matrix</span>
+            </TabsTrigger>
           </TabsList>
 
-          {/* Audience Hierarchy Tab */}
-          <TabsContent value="hierarchy" className="flex-1 overflow-auto mt-4">
+          {/* Tab 1: Campaign Overview */}
+          <TabsContent value="overview" className="flex-1 overflow-auto mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Campaign Overview</CardTitle>
+                <CardDescription>
+                  Campaign metadata, ClaimID linkages, and activation summary
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Campaign Metadata */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Brand</p>
+                      <p className="text-lg font-semibold">{campaign.brand.name}</p>
+                      <p className="text-sm text-muted-foreground">{campaign.brand.therapeuticArea}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Audience Type</p>
+                      <p className="text-lg font-semibold">{campaign.audienceType}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Segment</p>
+                      <p className="text-lg font-semibold">{campaign.segment.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">MLR Status</p>
+                      <Badge variant="default" className="bg-green-600">Approved</Badge>
+                    </div>
+                  </div>
+
+                  {/* Activation Timeline */}
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Activation Timeline</h3>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                        <span className="text-sm">Created</span>
+                      </div>
+                      <div className="flex-1 h-px bg-muted" />
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                        <span className="text-sm">MLR Approved</span>
+                      </div>
+                      <div className="flex-1 h-px bg-muted" />
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                        <span className="text-sm">Activated</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                      <span>2024-10-15</span>
+                      <span>2024-10-28</span>
+                      <span>{campaign.activatedAt.toLocaleDateString()}</span>
+                    </div>
+                  </div>
+
+                  {/* ClaimID Linkages */}
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Linked ClaimIDs</h3>
+                    <div className="space-y-3">
+                      <div className="border rounded-lg p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <Badge variant="outline" className="font-mono">CLM-EYLEA-AMD-2024-001</Badge>
+                          <Badge variant="default" className="bg-green-600">Approved</Badge>
+                        </div>
+                        <p className="text-sm mb-2">
+                          "Eylea demonstrated superior efficacy in treating wet AMD compared to ranibizumab"
+                        </p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span>Expires: 2025-03-15</span>
+                          <span>Evidence: HAWK Study (evidence_doc_v3.pdf)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* System Integration Status */}
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">System Integration Status</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span>Salesforce: Campaign Object Synced</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span>ID Registry: IDs Minted</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span>Claravine: Taxonomy Validated</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span>Snowflake: Events Ingesting</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab 2: Audience & Segments */}
+          <TabsContent value="audience" className="flex-1 overflow-auto mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>Audience Hierarchy</CardTitle>
@@ -238,7 +370,35 @@ export default function CampaignDetailView() {
             </Card>
           </TabsContent>
 
-          {/* Content Mappings Tab */}
+          {/* Tab 3: ID Registry & Tracking */}
+          <TabsContent value="tracking" className="flex-1 overflow-auto mt-4">
+            <IDRegistryTrackingTab
+              campaignId={campaign.id}
+              idRegistry={idRegistry}
+              microsegments={microsegments}
+            />
+          </TabsContent>
+
+          {/* Tab 4: Journey Design */}
+          <TabsContent value="journey" className="flex-1 overflow-auto mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Journey Design</CardTitle>
+                <CardDescription>
+                  Visual journey flow and sequence configuration
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <Workflow className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">Journey Canvas visualization will be displayed here</p>
+                  <p className="text-xs mt-2">Coming soon: Visual journey flow with node configuration</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab 5: Content Strategy */}
           <TabsContent value="content" className="flex-1 overflow-auto mt-4">
             <ContentMappingTable
               microsegments={microsegments}
@@ -262,13 +422,32 @@ export default function CampaignDetailView() {
             </div>
           </TabsContent>
 
-          {/* Performance Tab */}
-          <TabsContent value="performance" className="flex-1 overflow-auto mt-4">
+          {/* Tab 7: Sequence & Path Analysis */}
+          <TabsContent value="sequence" className="flex-1 overflow-auto mt-4">
             <SequencePerformanceDashboard
               idRegistry={idRegistry}
               microsegments={microsegments}
               campaignId={campaign.id}
             />
+          </TabsContent>
+
+          {/* Tab 8: Content × Microsegment Performance Matrix */}
+          <TabsContent value="matrix" className="flex-1 overflow-auto mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Content × Microsegment Performance Matrix</CardTitle>
+                <CardDescription>
+                  Granular performance tracking using composite keys from Snowflake
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">Campaign Performance Matrix will be displayed here</p>
+                  <p className="text-xs mt-2">Coming soon: Content × Microsegment performance analysis</p>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
