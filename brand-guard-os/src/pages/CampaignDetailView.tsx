@@ -407,19 +407,23 @@ export default function CampaignDetailView() {
             />
           </TabsContent>
 
-          {/* Tracking Tab */}
-          <TabsContent value="tracking" className="flex-1 overflow-auto mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <IDRegistryPanel entries={idRegistry} campaignId={campaign.id} />
-              <div>
-                {idRegistry.length > 0 && idRegistry[3] && (
-                  <TrackingKeyDisplay
-                    entry={idRegistry[3]}
-                    baseURL="https://example.com/content"
-                  />
-                )}
-              </div>
-            </div>
+          {/* Tab 6: Performance Overview */}
+          <TabsContent value="performance" className="flex-1 overflow-auto mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Overview</CardTitle>
+                <CardDescription>
+                  Campaign-level aggregated metrics from Snowflake
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">Campaign performance dashboard will be displayed here</p>
+                  <p className="text-xs mt-2">Coming soon: Real-time metrics, trends, and channel breakdown</p>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Tab 7: Sequence & Path Analysis */}
