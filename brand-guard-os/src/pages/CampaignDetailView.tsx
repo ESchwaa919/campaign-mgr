@@ -5,8 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, BarChart3, Users, Database, Map, Key, Workflow, FileText, TrendingUp, GitBranch, Target } from 'lucide-react';
 import { IDRegistryTrackingTab } from '@/components/IDRegistryTrackingTab';
+import { JourneyDesignTab } from '@/components/JourneyDesignTab';
+import { PerformanceOverviewTab } from '@/components/PerformanceOverviewTab';
 import { ContentMappingTable } from '@/components/ContentMappingTable';
 import { SequencePerformanceDashboard } from '@/components/SequencePerformanceDashboard';
+import { CampaignPerformanceMatrix } from '@/components/CampaignPerformanceMatrix';
 import {
   mockIDRegistry,
   mockMicrosegments,
@@ -381,21 +384,11 @@ export default function CampaignDetailView() {
 
           {/* Tab 4: Journey Design */}
           <TabsContent value="journey" className="flex-1 overflow-auto mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Journey Design</CardTitle>
-                <CardDescription>
-                  Visual journey flow and sequence configuration
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Workflow className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm">Journey Canvas visualization will be displayed here</p>
-                  <p className="text-xs mt-2">Coming soon: Visual journey flow with node configuration</p>
-                </div>
-              </CardContent>
-            </Card>
+            <JourneyDesignTab
+              campaignId={campaign.id}
+              idRegistry={idRegistry}
+              microsegments={microsegments}
+            />
           </TabsContent>
 
           {/* Tab 5: Content Strategy */}
@@ -409,21 +402,7 @@ export default function CampaignDetailView() {
 
           {/* Tab 6: Performance Overview */}
           <TabsContent value="performance" className="flex-1 overflow-auto mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Overview</CardTitle>
-                <CardDescription>
-                  Campaign-level aggregated metrics from Snowflake
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm">Campaign performance dashboard will be displayed here</p>
-                  <p className="text-xs mt-2">Coming soon: Real-time metrics, trends, and channel breakdown</p>
-                </div>
-              </CardContent>
-            </Card>
+            <PerformanceOverviewTab campaignId={campaign.id} />
           </TabsContent>
 
           {/* Tab 7: Sequence & Path Analysis */}
@@ -437,21 +416,7 @@ export default function CampaignDetailView() {
 
           {/* Tab 8: Content × Microsegment Performance Matrix */}
           <TabsContent value="matrix" className="flex-1 overflow-auto mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Content × Microsegment Performance Matrix</CardTitle>
-                <CardDescription>
-                  Granular performance tracking using composite keys from Snowflake
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm">Campaign Performance Matrix will be displayed here</p>
-                  <p className="text-xs mt-2">Coming soon: Content × Microsegment performance analysis</p>
-                </div>
-              </CardContent>
-            </Card>
+            <CampaignPerformanceMatrix />
           </TabsContent>
         </Tabs>
       </div>
